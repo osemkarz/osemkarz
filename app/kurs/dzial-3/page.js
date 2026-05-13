@@ -9,7 +9,7 @@ const LEKCJE = [
     n: 1, title: 'Czym jest równanie?',
     desc: 'Definicja, rodzaje, sprawdzanie rozwiązania',
     czas: '10 min', cke: true, status: 'done',
-    href: '#', xp: 120,
+    href: '/kurs/rownania-liniowe', xp: 120,
   },
   {
     n: 2, title: 'Równania I stopnia z jedną niewiadomą',
