@@ -51,22 +51,30 @@ function Nav() {
       padding: '0 24px',
     }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
-          Ósem<span style={{ color: '#F5541E' }}>karz</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
+            Ósem<span style={{ color: '#F5541E' }}>karz</span>
+          </Link>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {[['Jak to działa', '#jak-dziala'], ['Program kursu', '#program'], ['Cennik', '#cennik']].map(([l, h]) => (
+              <Link key={l} href={h} style={{ padding: '6px 12px', fontSize: 13, color: 'rgba(255,255,255,0.6)', borderRadius: 6, transition: 'color 0.15s' }}>
+                {l}
+              </Link>
+            ))}
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link href="/kurs" style={{
+          <Link href="/login" style={{
             padding: '8px 16px', fontSize: 13, color: 'rgba(255,255,255,0.7)',
-            borderRadius: 8, transition: 'color 0.15s',
+            borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)',
           }}>
             Zaloguj się
           </Link>
-          <Link href="/kurs" style={{
-            padding: '8px 18px', fontSize: 13, fontWeight: 500,
+          <Link href="/login" style={{
+            padding: '8px 18px', fontSize: 13, fontWeight: 600,
             background: '#F5541E', color: '#fff', borderRadius: 8,
-            transition: 'background 0.15s',
           }}>
-            Zacznij za darmo
+            Zacznij za darmo →
           </Link>
         </div>
       </div>
@@ -264,7 +272,7 @@ function HowItWorks() {
 
 function CourseMap() {
   return (
-    <section style={{ padding: '80px 24px', background: 'var(--navy)' }}>
+    <section id="program" style={{ padding: '80px 24px', background: 'var(--navy)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
           <div>
