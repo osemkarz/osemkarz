@@ -123,7 +123,7 @@ export default function KursPage() {
                     </div>
                   </div>
                   {!locked && (
-                    <Link href={d.status === 'active' ? d.n === '03' ? '/kurs/nierownosci' : '#' : '#'} style={{
+                    <Link href={!locked ? `/kurs/dzial-${d.n.replace('0','')}` : '#'} style={{
                       padding: '8px 18px', fontSize: 12, fontWeight: 500, borderRadius: 8,
                       background: d.status === 'active' ? '#F5541E' : d.status === 'done' ? 'transparent' : 'transparent',
                       color: d.status === 'active' ? '#fff' : d.status === 'done' ? '#00B894' : '#8896A5',
