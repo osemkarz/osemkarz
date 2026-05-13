@@ -46,7 +46,7 @@ export default function LessonViewer() {
       const apiMsgs = allMsgs.map(m => ({ role: m.r === 'u' ? 'user' : 'assistant', content: m.t }))
       const startIdx = apiMsgs.findIndex(m => m.role === 'user')
       const cleaned = startIdx >= 0 ? apiMsgs.slice(startIdx) : apiMsgs
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/max', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYS, messages: cleaned }),
@@ -231,6 +231,9 @@ export default function LessonViewer() {
       {/* ── SIDEBAR ── */}
       <div style={{ background: '#0F1729', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <Link href="/kurs/dzial-3" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.5)', fontSize: 12, textDecoration: 'none', marginBottom: 10 }}>
+            ← Dział 3
+          </Link>
           <Link href="/kurs" style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
             Ósem<span style={{ color: '#F5541E' }}>karz</span>
           </Link>
