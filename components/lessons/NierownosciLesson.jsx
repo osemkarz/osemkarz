@@ -665,10 +665,13 @@ export default function NierownosciLesson() {
 
   return (
     <div style={{ minHeight: '100vh', background: S.bg, fontFamily: "'DM Sans', sans-serif" }}>
-      <nav style={{ background: S.navy, padding: '0 24px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 54 }}>
-          <Link href="/kurs" style={{ fontFamily: 'Fraunces, serif', fontSize: 19, fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>Ósem<span style={{ color: S.accent }}>karz</span></Link>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)' }}>Dział 3 → Lekcja 4</div>
+      <nav style={{ background: S.navy, padding: '0 24px', borderBottom: '1px solid rgba(255,255,255,0.07)', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', alignItems: 'center', height: 54, gap: 16 }}>
+          <Link href="/kurs/dzial-3" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.5)', fontSize: 13, textDecoration: 'none', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', transition: 'all .15s' }}>
+            ← Dział 3
+          </Link>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)' }}>Lekcja 4 z 6</div>
+          <Link href="/kurs" style={{ marginLeft: 'auto', fontFamily: 'Fraunces, serif', fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', textDecoration: 'none' }}>Ósem<span style={{ color: S.accent }}>karz</span></Link>
         </div>
       </nav>
 
