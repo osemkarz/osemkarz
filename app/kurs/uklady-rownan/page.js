@@ -1,9 +1,9 @@
-import LessonViewer from '../../../components/LessonViewer'
+import UkladyRownanLesson from '../../../components/lessons/UkladyRownanLesson'
 
 export const metadata = {
-  title: 'Układy równań — Ósemkarz',
+  title: 'Układy równań z dwiema niewiadomymi — Ósemkarz',
 }
 
 export default function UkladyRownanPage() {
-  return <LessonViewer />
+  return <UkladyRownanLesson />
 }
