@@ -43,6 +43,17 @@ const T = {
 }
 
 // ── MICRO COMPONENTS ──────────────────────────────────────────────────────────
+// Styled subheading inside theory sections
+const SH = ({children}) => (
+  <div style={{fontSize:14,fontWeight:500,color:'var(--color-text-primary)',margin:'20px 0 10px',paddingBottom:8,borderBottom:'0.5px solid var(--color-border-tertiary)',display:'flex',alignItems:'center',gap:8}}>
+    <span style={{width:3,height:16,background:'#534AB7',borderRadius:2,display:'inline-block',flexShrink:0}}/>
+    {children}
+  </div>
+)
+
+// Math notation helpers — correct symbols for kids
+const M = ({c}) => <span style={{fontFamily:'var(--font-mono)',fontSize:'1em'}}>{c}</span>
+
 const SecLabel = ({children,tab,total}) => (
   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:18}}>
     <span style={{width:6,height:6,borderRadius:'50%',background:'#534AB7',flexShrink:0,display:'inline-block'}}/>
@@ -141,7 +152,7 @@ def: <>
   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
     {[
       ['Wyrażenie','2x + 3','Brak znaku =. Można obliczyć wartość, ale nie można go rozwiązać.','#EEEDFE','#3C3489','#534AB7'],
-      ['Równanie','2x + 3 = 11','Jest znak =. Szukamy x. Rozwiązanie: x = 4 (bo 2·4+3=11).','#EAF3DE','#27500A','#3B6D11'],
+      ['Równanie','2x + 3 = 11','Jest znak =. Szukamy x. Rozwiązanie: x = 4 (bo 2 · 4+3=11).','#EAF3DE','#27500A','#3B6D11'],
     ].map(([t,f,d,bg,c,bc])=>(
       <div key={t} style={{background:bg,borderRadius:'var(--border-radius-md)',padding:'14px',borderLeft:`3px solid ${bc}`}}>
         <div style={{fontSize:11,fontWeight:500,color:c,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{t}</div>
@@ -150,7 +161,7 @@ def: <>
       </div>
     ))}
   </div>
-  <p style={{fontSize:13,fontWeight:500,color:'var(--color-text-primary)',marginBottom:10}}>Ile rozwiązań może mieć równanie liniowe?</p>
+  <SH>Ile rozwiązań może mieć równanie liniowe?</SH>
   <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:14}}>
     {[
       ['Dokładnie jedno',   'ax + b = c,  a ≠ 0',       'Typowy przypadek na egzaminie','#EAF3DE','#27500A'],
@@ -179,7 +190,7 @@ zasady: <>
     {[
       ['+c','Dodaj tę samą liczbę','x − 5 = 3  →  x = 8','Dodajemy 5 do obu stron'],
       ['−c','Odejmij tę samą liczbę','x + 7 = 12  →  x = 5','Odejmujemy 7 od obu stron'],
-      ['×c','Pomnóż przez liczbę ≠ 0','x/4 = 3  →  x = 12','Mnożymy przez 4'],
+      ['×c','Pomnóż przez liczbę ≠ 0','x ÷ 4 = 3  →  x = 12','Mnożymy przez 4'],
       ['÷c','Podziel przez liczbę ≠ 0','6x = 18  →  x = 3','Dzielimy przez 6'],
     ].map(([op,t,p,d])=>(
       <div key={op} style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'14px',border:'0.5px solid var(--color-border-tertiary)'}}>
@@ -193,16 +204,21 @@ zasady: <>
   <div style={T.callout('err')}>
     <strong>Czego NIE wolno robić:</strong> dzielić przez 0 (niedozwolone matematycznie) · wykonywać różnych działań po różnych stronach · pomijać jakikolwiek wyraz przy mnożeniu.
   </div>
-  <p style={{fontSize:13,fontWeight:500,color:'var(--color-text-primary)',margin:'16px 0 10px'}}>Pojęcie równań równoważnych</p>
+  <SH>Pojęcie równań równoważnych</SH>
   <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:12}}>
     Dwa równania są <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>równoważne</strong> gdy mają ten sam zbiór rozwiązań. Każda dozwolona operacja przekształca równanie w równoważne — dlatego możemy "prowadzić" równanie krok po kroku do rozwiązania.
   </p>
-  <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'16px',fontFamily:'var(--font-mono)',fontSize:13,color:'var(--color-text-primary)',lineHeight:2.4,border:'0.5px solid var(--color-border-tertiary)'}}>
-    2x + 6 = 12<br/>
-    <span style={{fontSize:11,fontFamily:'var(--font-sans)',color:'var(--color-text-tertiary)'}}>  odejmujemy 6 od obu stron ↓</span><br/>
-    2x = 6<br/>
-    <span style={{fontSize:11,fontFamily:'var(--font-sans)',color:'var(--color-text-tertiary)'}}>  dzielimy obie strony przez 2 ↓</span><br/>
-    x = 3 ✓
+  <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'16px 20px',border:'0.5px solid var(--color-border-tertiary)'}}>
+    {[
+      ['2x + 6 = 12', null],
+      ['2x = 6', 'odejmujemy 6 od obu stron'],
+      ['x = 3  ✓', 'dzielimy obie strony przez 2'],
+    ].map(([eq, note], i) => (
+      <div key={i} style={{display:'flex',alignItems:'baseline',gap:16,padding:'8px 0',borderBottom:i<2?'0.5px solid var(--color-border-tertiary)':'none'}}>
+        <div style={{fontFamily:'var(--font-mono)',fontSize:15,color:'var(--color-text-primary)',minWidth:140}}>{eq}</div>
+        {note && <div style={{fontSize:12,color:'var(--color-text-tertiary)'}}>{note}</div>}
+      </div>
+    ))}
   </div>
 </>,
 
@@ -210,25 +226,25 @@ proste: <>
   <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:14}}>
     Równanie <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>ax + b = c</strong> rozwiązujemy w dwóch krokach: przenosimy stałą na prawą stronę, dzielimy przez współczynnik.
   </p>
-  <Formula lines={['[a]x + [b] = {c}  →  [a]x = {c} − [b]  →  x = ({c} − [b]) / [a]']} />
+  <Formula lines={['[a]x + [b] = {c}  →  [a]x = {c} − [b]  →  x = ({c} − [b]) ÷ [a]']} />
 
   <Task level="basic" label="Klasyczny typ" eq="5x − 8 = 17" />
   <Steps steps={[
-    ['Dodajemy 8 do obu stron (eliminujemy stałą po lewej):','5x = 25'],
+    ['Dodajemy 8 do obu stron:','5x = 25'],
     ['Dzielimy obie strony przez 5:','x = 5'],
-  ]} answer={['x = 5','Sprawdzenie: 5·5−8 = 17 ✓']} />
+  ]} answer={['x = 5','Sprawdzenie: 5 · 5 − 8 = 17 ✓']} />
 
   <Task level="med" label="Wynik ułamkowy — częsty na CKE" eq="4x + 5 = 14" />
   <Steps steps={[
     ['Odejmujemy 5:','4x = 9'],
     ['Dzielimy przez 4:','x = 9/4 = 2,25'],
-  ]} answer={['x = 9/4','Sprawdzenie: 4·(9/4)+5 = 9+5 = 14 ✓']} />
+  ]} answer={['x = 9/4','Sprawdzenie: 4 · (9/4)+5 = 9+5 = 14 ✓']} />
 
   <Task level="hard" label="Ujemny współczynnik i obie strony ujemne" eq="−3x + 7 = −2" />
   <Steps steps={[
     ['Odejmujemy 7 od obu stron:','−3x = −9'],
     ['Dzielimy przez −3 (ujemna — tylko zmiana znaku wyniku, nie równanie nierówności!):','x = 3'],
-  ]} answer={['x = 3','Sprawdzenie: −3·3+7 = −9+7 = −2 ✓']} />
+  ]} answer={['x = 3','Sprawdzenie: −3 · 3+7 = −9+7 = −2 ✓']} />
 
   <Task level="cke" label="Zadanie z przekształcaniem wzoru — CKE 2024, Zadanie 6" eq="y = 5x · w,  wyznacz x" sub="Zadanie otwarte — przekształcanie wzoru" />
   <Steps steps={[
@@ -257,14 +273,14 @@ obu: <>
     ['Przenosimy 2x na lewą (odejmujemy 2x od obu stron):','3x − 3 = 9'],
     ['Dodajemy 3 do obu stron:','3x = 12'],
     ['Dzielimy przez 3:','x = 4'],
-  ]} answer={['x = 4','Sprawdzenie: 5·4−3=17 i 2·4+9=17 ✓']} />
+  ]} answer={['x = 4','Sprawdzenie: 5 · 4−3=17 i 2 · 4+9=17 ✓']} />
 
   <Task level="hard" label="Ujemne współczynniki po obu stronach" eq="2 − 3x = 5 − 7x" />
   <Steps steps={[
     ['Dodajemy 7x do obu stron (przenosimy −7x na lewą):','2 + 4x = 5'],
     ['Odejmujemy 2:','4x = 3'],
     ['Dzielimy przez 4:','x = 3/4'],
-  ]} answer={['x = 3/4','Sprawdzenie: 2−3·(3/4)=2−9/4=−1/4 i 5−7·(3/4)=5−21/4=−1/4 ✓']} />
+  ]} answer={['x = 3/4','Sprawdzenie: 2−3 · (3/4)=2−9/4=−1/4 i 5−7 · (3/4)=5−21/4=−1/4 ✓']} />
 
   <Task level="cke" label="Typ z egzaminu CKE — weryfikacja transformacji" eq="Które przekształcenie równania  5x − 3 = 2  jest BŁĘDNE?" sub="Zadanie zamknięte — rozpoznawanie błędu" />
   <div style={{display:'flex',flexDirection:'column',gap:8,margin:'12px 0 14px'}}>
@@ -299,10 +315,10 @@ nawiasy: <>
 
   <Task level="basic" label="Jeden nawias" eq="3(2x − 5) = x + 10" />
   <Steps steps={[
-    ['Rozwijamy nawias (3·2x=6x, 3·(−5)=−15):','6x − 15 = x + 10'],
+    ['Rozwijamy nawias (3 · 2x=6x, 3 · (−5)=−15):','6x − 15 = x + 10'],
     ['Przenosimy x na lewą: 6x−x=10+15','5x = 25'],
     ['Dzielimy przez 5:','x = 5'],
-  ]} answer={['x = 5','Sprawdzenie: 3·(10−5)=15 i 5+10=15 ✓']} />
+  ]} answer={['x = 5','Sprawdzenie: 3 · (10−5)=15 i 5+10=15 ✓']} />
 
   <Task level="med" label="Minus przed nawiasem — zmienia wszystkie znaki" eq="4x − (2x + 7) = 3(x − 4)" />
   <Steps steps={[
@@ -310,7 +326,7 @@ nawiasy: <>
     ['Upraszczamy lewą stronę:','2x − 7 = 3x − 12'],
     ['Przenosimy: 2x−3x=−12+7','−x = −5'],
     ['Mnożymy przez −1:','x = 5'],
-  ]} answer={['x = 5','Sprawdzenie: 20−(10+7)=3 i 3·(5−4)=3 ✓']} />
+  ]} answer={['x = 5','Sprawdzenie: 20−(10+7)=3 i 3 · (5−4)=3 ✓']} />
 
   <Task level="hard" label="Trzy nawiasy z różnymi współczynnikami" eq="2(3x − 1) − 3(x + 4) = x − 17" />
   <Steps steps={[
@@ -318,7 +334,7 @@ nawiasy: <>
     ['Zbieramy wyrazy po lewej:','3x − 14 = x − 17'],
     ['Przenosimy: 3x−x=−17+14','2x = −3'],
     ['Dzielimy przez 2:','x = −3/2 = −1,5'],
-  ]} answer={['x = −3/2','Sprawdzenie: 2·(3·(−1,5)−1)−3·(−1,5+4) = 2·(−5,5)−3·2,5 = −11−7,5 = −18,5 i −1,5−17=−18,5 ✓']} />
+  ]} answer={['x = −3/2','Sprawdzenie: 2 · (3 · (−1,5)−1)−3 · (−1,5+4) = 2 · (−5,5)−3 · 2,5 = −11−7,5 = −18,5 i −1,5−17=−18,5 ✓']} />
 
   <Task level="cke" label="Typ zadania otwartego CKE — równanie z nawiasami" eq="5(x + 3) − 2(3x − 1) = 3(2 − x) + 4" sub="Zadanie otwarte — 2 punkty" />
   <Steps steps={[
@@ -326,7 +342,7 @@ nawiasy: <>
     ['Zbieramy wyrazy podobne po obu stronach:','−x + 17 = 10 − 3x'],
     ['Przenosimy: −x+3x=10−17','2x = −7'],
     ['Dzielimy przez 2:','x = −7/2 = −3,5'],
-  ]} answer={['x = −3,5','Sprawdzenie: 5·(−0,5)−2·(−11,5)=−2,5+23=20,5 i 3·(5,5)+4=20,5 ✓']} />
+  ]} answer={['x = −3,5','Sprawdzenie: 5 · (−0,5)−2 · (−11,5)=−2,5+23=20,5 i 3 · (5,5)+4=20,5 ✓']} />
 
   <div style={T.callout('tip')}>
     <strong>Strategia przy wielu nawiasach:</strong> Rozwiń wszystkie nawiasy w jednym kroku, potem zbierz wyrazy podobne po każdej stronie osobno, a na końcu przenoś między stronami. Nie mieszaj tych etapów.
@@ -355,13 +371,13 @@ ulamki: <>
   <Steps steps={[
     ['Mnożymy każdy wyraz przez 3 (w tym 2 i 5!):','x + 6 = 15'],
     ['Odejmujemy 6:','x = 9'],
-  ]} answer={['x = 9','Sprawdzenie: 9/3+2=3+2=5 ✓']} />
+  ]} answer={['x = 9','Sprawdzenie: 9÷3+2=3+2=5 ✓']} />
 
   <Task level="med" label="Dwa różne mianowniki" eq="x/2 − x/5 = 3" sub="Mianowniki: 2 i 5. NWW = 10." />
   <Steps steps={[
     ['Mnożymy każdy wyraz przez 10:','5x − 2x = 30'],
     ['Upraszczamy i dzielimy przez 3:','x = 10'],
-  ]} answer={['x = 10','Sprawdzenie: 10/2−10/5=5−2=3 ✓']} />
+  ]} answer={['x = 10','Sprawdzenie: 10÷2 − 10÷5 = 5 − 2 = 3 ✓']} />
 
   <Task level="hard" label="Wyrażenia w liczniku — typ CKE" eq="(2x + 1)/3 − (x − 2)/4 = 2" sub="Mianowniki: 3 i 4. NWW = 12." />
   <Steps steps={[
@@ -369,7 +385,7 @@ ulamki: <>
     ['Rozwijamy nawiasy:','8x + 4 − 3x + 6 = 24'],
     ['Zbieramy wyrazy: 5x + 10 = 24, odejmujemy 10:','5x = 14'],
     ['Dzielimy przez 5:','x = 14/5 = 2,8'],
-  ]} answer={['x = 14/5','Sprawdzenie: (2·2,8+1)/3−(2,8−2)/4 = 6,6/3−0,8/4 = 2,2−0,2=2 ✓']} />
+  ]} answer={['x = 14/5','Sprawdzenie: (2 · 2,8+1)/3−(2,8−2)/4 = 6,6/3−0,8/4 = 2,2−0,2=2 ✓']} />
 
   <div style={T.callout('err')}>
     <strong>Pułapka:</strong> Mnożąc przez NWW musisz pomnożyć KAŻDY wyraz — też liczby całkowite!<br/>
@@ -384,7 +400,7 @@ sprzecz: <>
     Nie każde równanie ma rozwiązanie. Po przekształceniach możemy dojść do zdania zawsze fałszywego lub zawsze prawdziwego — niezależnie od wartości x.
   </p>
 
-  <p style={{fontSize:14,fontWeight:500,color:'var(--color-text-primary)',marginBottom:12}}>Typ 1: Równanie sprzeczne</p>
+  <SH>Typ 1: Równanie sprzeczne — brak rozwiązań</SH>
   <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:12}}>
     Równanie sprzeczne po uproszczeniu daje fałszywe zdanie (np. <span style={{fontFamily:'var(--font-mono)'}}>3 = 7</span>). Nie ma żadnego rozwiązania.
   </p>
@@ -395,7 +411,7 @@ sprzecz: <>
     ['Zbieramy wyrazy (6x i −6x znoszą się!):','11 = 15'],
   ]} answer={['Brak rozwiązań — równanie sprzeczne','11 ≠ 15. Zbiór rozwiązań: ∅']} answerType="none" />
 
-  <p style={{fontSize:14,fontWeight:500,color:'var(--color-text-primary)',margin:'20px 0 12px'}}>Typ 2: Równanie tożsamościowe</p>
+  <SH>Typ 2: Równanie tożsamościowe — nieskończenie wiele rozwiązań</SH>
   <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:12}}>
     Równanie tożsamościowe jest prawdziwe dla każdej wartości x. Po uproszczeniu daje zdanie zawsze prawdziwe (np. <span style={{fontFamily:'var(--font-mono)'}}>0 = 0</span>).
   </p>
@@ -406,8 +422,8 @@ sprzecz: <>
     ['Zbieramy wyrazy (4x i −4x znoszą się!):','10 = 10'],
   ]} answer={['Nieskończenie wiele rozwiązań — równanie tożsamościowe','0=0. Każda liczba rzeczywista jest rozwiązaniem. Zbiór: ℝ']} answerType="inf" />
 
-  <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'16px',marginTop:16,border:'0.5px solid var(--color-border-tertiary)'}}>
-    <div style={{fontSize:13,fontWeight:500,color:'var(--color-text-primary)',marginBottom:12}}>Jak rozpoznać — tabela:</div>
+  <SH>Jak rozpoznać — tabela</SH>
+  <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'16px',border:'0.5px solid var(--color-border-tertiary)'}}>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
       {[
         ['Wynik','Typ','Rozwiązania'],
@@ -435,8 +451,8 @@ bledy: <>
     <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,.6)',marginBottom:14}}>Wzorcowy zapis sprawdzenia (tak pisze się w arkuszu CKE):</div>
     {[
       ['Napisz oryginalne równanie','4x + 5(x−64) = 400'],
-      ['Podstaw znalezione x','x=80: 4·80 + 5·(80−64) = ?'],
-      ['Oblicz lewą stronę','320 + 5·16 = 320 + 80 = 400'],
+      ['Podstaw znalezione x','x=80: 4 · 80 + 5 · (80−64) = ?'],
+      ['Oblicz lewą stronę','320 + 5 · 16 = 320 + 80 = 400'],
       ['Porównaj z prawą','400 = 400 ✓ → x = 80 jest rozwiązaniem'],
     ].map(([s,eq],i)=>(
       <div key={i} style={{display:'flex',gap:12,marginBottom:8,alignItems:'flex-start'}}>
@@ -449,7 +465,7 @@ bledy: <>
     ))}
   </div>
 
-  <div style={{fontSize:13,fontWeight:500,color:'var(--color-text-primary)',marginBottom:12}}>Kompletna lista błędów — co widzi egzaminator:</div>
+  <SH>Kompletna lista błędów — co widzi egzaminator</SH>
   {[
     {b:'Błąd znaku przy przenoszeniu',w:'3x + 2 = x + 10  →  3x + x = 10 + 2 ✗',ok:'3x − x = 10 − 2  →  2x = 8 ✓'},
     {b:'Błąd przy rozwijaniu nawiasu',w:'3(x − 4) = 3x − 4 ✗',ok:'3(x − 4) = 3x − 12 ✓'},
@@ -506,7 +522,7 @@ function TeoriaContent({onComplete}) {
 
 // ── QUIZ (8 pytań, poziom CKE) ─────────────────────────────────────────────────
 const QUIZ = [
-  {q:'Rozwiąż równanie:',eq:'3(2x − 5) = x + 10',opts:['x = 5','x = 7','x = 3','x = 4'],ans:0,why:'Rozwijamy: 6x−15=x+10. Przenosimy: 5x=25. Dzielimy: x=5. Sprawdzenie: 3·(10−5)=15 i 5+10=15 ✓'},
+  {q:'Rozwiąż równanie:',eq:'3(2x − 5) = x + 10',opts:['x = 5','x = 7','x = 3','x = 4'],ans:0,why:'Rozwijamy: 6x−15=x+10. Przenosimy: 5x=25. Dzielimy: x=5. Sprawdzenie: 3 · (10−5)=15 i 5+10=15 ✓'},
   {q:'Rozwiąż równanie (uwaga na znaki!):',eq:'2 − 3x = 5 − 7x',opts:['x = 3/4','x = −3/4','x = 4/3','x = 1'],ans:0,why:'Przenosimy: −3x+7x=5−2 → 4x=3 → x=3/4. Sprawdzenie: 2−9/4=−1/4 i 5−21/4=−1/4 ✓'},
   {q:'Rozwiąż równanie z ułamkami:',eq:'(2x + 1)/3 − (x − 2)/4 = 2',opts:['x = 14/5','x = 2','x = 3','x = 5/14'],ans:0,why:'NWW=12. Mnożymy: 4(2x+1)−3(x−2)=24 → 8x+4−3x+6=24 → 5x=14 → x=14/5.'},
   {q:'Co wychodzi po uproszczeniu?',eq:'3(2x + 1) − 2(3x − 4) = 15',opts:['x = 2','x = 0','Brak rozwiązań','Nieskończenie wiele'],ans:2,why:'Rozwijamy: 6x+3−6x+8=15 → 11=15. To zawsze fałsz — równanie sprzeczne, brak rozwiązań.'},
@@ -583,20 +599,20 @@ function QuizContent({onComplete}) {
 
 // ── FISZKI (15 kart) ──────────────────────────────────────────────────────────
 const FISZKI = [
-  {q:'Co to jest korzeń (rozwiązanie) równania?',a:'Wartość x, która po podstawieniu do równania daje prawdziwe zdanie — obie strony są równe.',f:'x=4 jest rozwiązaniem 2x+3=11, bo 2·4+3=11 ✓'},
+  {q:'Co to jest korzeń (rozwiązanie) równania?',a:'Wartość x, która po podstawieniu do równania daje prawdziwe zdanie — obie strony są równe.',f:'x=4 jest rozwiązaniem 2x+3=11, bo 2 · 4+3=11 ✓'},
   {q:'Podstawowa zasada przekształcania równań',a:'Możemy dodawać, odejmować, mnożyć i dzielić OBIE STRONY przez tę samą liczbę (≠0) — równość zostaje zachowana.',f:'a = b  ⟺  a + c = b + c'},
   {q:'Schemat rozwiązania ax + b = c',a:'1. Odejmij b od obu stron (ax = c−b). 2. Podziel przez a (x = (c−b)/a). 3. Sprawdź.',f:'4x + 5 = 21  →  4x = 16  →  x = 4',note:'Działa gdy a ≠ 0'},
   {q:'Zasada przenoszenia wyrazu na drugą stronę',a:'Zmiana strony = zmiana znaku. To skrót od "odejmowania od obu stron".',f:'+3x po prawej → −3x po lewej\n−7 po lewej → +7 po prawej'},
-  {q:'Jak rozwinąć nawias a(bx + c)?',a:'Mnożymy przez KAŻDY wyraz w nawiasie: a(bx+c) = abx + ac.',f:'3(2x−5) = 6x − 15',note:'3·2x = 6x, 3·(−5) = −15'},
+  {q:'Jak rozwinąć nawias a(bx + c)?',a:'Mnożymy przez KAŻDY wyraz w nawiasie: a(bx+c) = abx + ac.',f:'3(2x−5) = 6x − 15',note:'3 · 2x = 6x, 3 · (−5) = −15'},
   {q:'Minus przed nawiasem — co robi?',a:'Minus zmienia znaki WSZYSTKICH wyrazów w nawiasie. −(a+b) = −a−b.',f:'−(3x + 7) = −3x − 7\n−(x − 4) = −x + 4'},
   {q:'Jak pozbyć się ułamków z równania?',a:'Pomnóż KAŻDY wyraz (po obu stronach) przez NWW wszystkich mianowników.',f:'x/2 + x/3 = 5, NWW=6:\n3x + 2x = 30  →  x = 6',note:'Mnożysz też liczby całkowite!'},
   {q:'Co to jest równanie sprzeczne?',a:'Równanie bez rozwiązań. Po uproszczeniu daje fałszywe zdanie np. 5 = −2. Zbiór rozwiązań: ∅.',f:'3(2x+1)−2(3x−4)=15  →  11=15 ✗'},
   {q:'Co to jest równanie tożsamościowe?',a:'Równanie prawdziwe dla każdej wartości x. Po uproszczeniu daje 0=0. Zbiór: ℝ.',f:'4(x+2)−2(2x−1)=10  →  10=10 ✓'},
-  {q:'Jak sprawdzić rozwiązanie na egzaminie CKE?',a:'Podstaw x do ORYGINALNEGO równania. Oblicz obie strony osobno. Napisz "LS = PS ✓". To jest wymagany krok za punkt.',f:'x=5 w 3(2x−5)=x+10:\nLS=3·5=15, PS=5+10=15 ✓'},
+  {q:'Jak sprawdzić rozwiązanie na egzaminie CKE?',a:'Podstaw x do ORYGINALNEGO równania. Oblicz obie strony osobno. Napisz "LS = PS ✓". To jest wymagany krok za punkt.',f:'x=5 w 3(2x−5)=x+10:\nLS=3 · 5=15, PS=5+10=15 ✓'},
   {q:'Kiedy wynik jest ułamkiem — czy to błąd?',a:'Nie! Ułamkowy wynik to poprawna odpowiedź. Nie szukaj liczby całkowitej.',f:'4x + 5 = 14  →  x = 9/4 = 2,25',note:'Na CKE oba zapisy (ułamek i dziesiętny) są akceptowane'},
   {q:'Jak ułożyć równanie z zadania tekstowego?',a:'1. Oznacz x (nieznana wielkość). 2. Wyraź resztę przez x. 3. Ułóż równanie z warunków zadania. 4. Rozwiąż. 5. Odpowiedz na pytanie (nie zawsze x!).',f:'Bilety: teatr=x, kino=x−64.\n4x + 5(x−64) = 400'},
   {q:'Jak sprawdzić czy dwa równania są równoważne?',a:'Mają ten sam zbiór rozwiązań. Każda dozwolona operacja przekształca równanie w równoważne.',f:'2x+6=12 i x+3=6 i x=3 — wszystkie równoważne'},
-  {q:'Co robi mnożenie przez NWW przy ułamkach?',a:'Eliminuje mianowniki. Każdy ułamek x/a po pomnożeniu przez NWW daje liczbę całkowitą.',f:'x/4 i x/6, NWW=12:\n(x/4)·12 = 3x, (x/6)·12 = 2x'},
+  {q:'Co robi mnożenie przez NWW przy ułamkach?',a:'Eliminuje mianowniki. Każdy ułamek x/a po pomnożeniu przez NWW daje liczbę całkowitą.',f:'x/4 i x/6, NWW=12:\n(x/4) · 12 = 3x, (x/6) · 12 = 2x'},
   {q:'Jaka jest złota zasada CKE przy zadaniach otwartych?',a:'Zapisuj KAŻDY krok rozwiązania. Egzaminatorzy przyznają punkty za tok rozwiązania. Samo wypisanie wyniku bez dowodu = 0 punktów.',f:'za równanie: 1pkt\nza rozwiązanie: 1pkt\nza odpowiedź: 1pkt'},
 ]
 
