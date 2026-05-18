@@ -566,7 +566,7 @@ function QuizContent({onComplete}) {
       <div style={card}>
         <div style={{textAlign:'center',padding:'16px 0 24px'}}>
           <div style={{fontSize:52,marginBottom:8}}>{ok>=6?'🎯':ok>=4?'👍':'📚'}</div>
-          <div style={{fontFamily:'DM Sans', sans-serif,fontSize:24,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/{QUIZ.length} poprawnych</div>
+          <div style={{fontSize:24,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/{QUIZ.length} poprawnych</div>
           <div style={{fontSize:14,color:C.text2}}>{ok>=6?'Doskonale! Czas na fiszki.':ok>=4?'Dobry wynik. Powtórz słabsze sekcje.':'Wróć do teorii i spróbuj ponownie.'}</div>
         </div>
         <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
