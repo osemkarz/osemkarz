@@ -8,65 +8,36 @@ import Link from 'next/link'
 // Wersja: redesign wizualny + poziom trudności CKE 2022-2024
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── DESIGN TOKENS ─────────────────────────────────────────────────────────────
-const T = {
-  card: {
-    background:'var(--color-background-primary)',
-    borderRadius:'var(--border-radius-lg)',
-    border:'0.5px solid var(--color-border-tertiary)',
-    padding:24,
-  },
-  btn: (x={}) => ({
-    padding:'9px 20px', fontSize:13, fontWeight:500,
-    borderRadius:'var(--border-radius-md)',
-    border:'0.5px solid var(--color-border-secondary)',
-    background:'var(--color-background-primary)',
-    color:'var(--color-text-primary)',
-    cursor:'pointer', fontFamily:'inherit', transition:'all .15s',
-    ...x,
-  }),
-  formula: {
-    background:'#0F1729',
-    borderRadius:'var(--border-radius-lg)',
-    padding:'18px 24px', textAlign:'center', margin:'18px 0',
-  },
-  callout: (type) => {
-    const map = {
-      warn: {bg:'#FAEEDA',bl:'#854F0B',c:'#633806'},
-      tip:  {bg:'#EAF3DE',bl:'#3B6D11',c:'#27500A'},
-      info: {bg:'#E6F1FB',bl:'#185FA5',c:'#0C447C'},
-      err:  {bg:'#FCEBEB',bl:'#A32D2D',c:'#791F1F'},
-    }
-    const {bg,bl,c} = map[type]||map.info
-    return {background:bg, borderLeft:`3px solid ${bl}`, borderRadius:'0 var(--border-radius-md) var(--border-radius-md) 0', padding:'12px 16px', fontSize:13, color:c, lineHeight:1.75, margin:'14px 0'}
-  },
-}
+// ── DESIGN TOKENS — spójne z NierownosciLesson ────────────────────────────────
+const C = { navy:'#0F1729',accent:'#F5541E',green:'#00B894',purple:'#6C5CE7',blue:'#185FA5',bg:'#F7F8FC',white:'#fff',border:'#E2E8F0',text:'#0F1729',text2:'#4A5568',text3:'#8896A5' }
+const card = { background:C.white, borderRadius:14, border:`0.5px solid ${C.border}`, padding:24 }
+const btn = (x={}) => ({ padding:'10px 22px', fontSize:13, fontWeight:500, borderRadius:8, cursor:'pointer', fontFamily:'inherit', border:`0.5px solid ${C.border}`, background:C.white, color:C.text, transition:'all .15s', ...x })
 
 // ── MICRO COMPONENTS ──────────────────────────────────────────────────────────
 // Styled subheading inside theory sections
 const SH = ({children}) => (
-  <div style={{fontSize:14,fontWeight:500,color:'var(--color-text-primary)',margin:'20px 0 10px',paddingBottom:8,borderBottom:'0.5px solid var(--color-border-tertiary)',display:'flex',alignItems:'center',gap:8}}>
+  <div style={{fontSize:14,fontWeight:500,color:C.text,margin:'20px 0 10px',paddingBottom:8,borderBottom:`0.5px solid ${C.border}`,display:'flex',alignItems:'center',gap:8}}>
     <span style={{width:3,height:16,background:'#534AB7',borderRadius:2,display:'inline-block',flexShrink:0}}/>
     {children}
   </div>
 )
 
 // Math notation helpers — correct symbols for kids
-const M = ({c}) => <span style={{fontFamily:'var(--font-mono)',fontSize:'1em'}}>{c}</span>
+const M = ({c}) => <span style={{fontFamily:'monospace',fontSize:'1em'}}>{c}</span>
 
 const SecLabel = ({children,tab,total}) => (
   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:18}}>
     <span style={{width:6,height:6,borderRadius:'50%',background:'#534AB7',flexShrink:0,display:'inline-block'}}/>
-    <span style={{fontSize:11,fontWeight:500,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--color-text-tertiary)'}}>{children}</span>
-    {total&&<span style={{marginLeft:'auto',fontSize:11,color:'var(--color-text-tertiary)'}}>Sekcja {tab} z {total}</span>}
+    <span style={{fontSize:11,fontWeight:500,letterSpacing:'.08em',textTransform:'uppercase',color:C.text3}}>{children}</span>
+    {total&&<span style={{marginLeft:'auto',fontSize:11,color:C.text3}}>Sekcja {tab} z {total}</span>}
   </div>
 )
 
 const Formula = ({title,lines,note}) => (
-  <div style={T.formula}>
+  <div style={{background:'#0F1729',borderRadius:14,padding:'18px 24px',textAlign:'center',margin:'18px 0'}}>
     {title&&<div style={{fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:'rgba(255,255,255,.3)',marginBottom:10}}>{title}</div>}
     {lines.map((l,i)=>(
-      <div key={i} style={{fontFamily:'var(--font-mono)',fontSize:20,color:'#fff',lineHeight:2.1}}
+      <div key={i} style={{fontFamily:'monospace',fontSize:20,color:'#fff',lineHeight:2.1}}
         dangerouslySetInnerHTML={{__html:
           l.replace(/\[([^\]]+)\]/g,'<span style="color:#FF7A4D">$1</span>')
            .replace(/\{([^\}]+)\}/g,'<span style="color:#00B894">$1</span>')
@@ -90,11 +61,11 @@ const Task = ({level,label,eq,sub}) => {
     <div style={{margin:'20px 0'}}>
       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
         {b&&<span style={{fontSize:10,fontWeight:500,padding:'3px 9px',borderRadius:20,background:b.bg,color:b.c}}>{b.txt}</span>}
-        {label&&<span style={{fontSize:13,color:'var(--color-text-secondary)'}}>{label}</span>}
+        {label&&<span style={{fontSize:13,color:C.text2}}>{label}</span>}
       </div>
-      <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'14px 18px',border:'0.5px solid var(--color-border-tertiary)'}}>
-        {sub&&<div style={{fontSize:10,fontWeight:500,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--color-text-tertiary)',marginBottom:6}}>{sub}</div>}
-        <div style={{fontFamily:'var(--font-mono)',fontSize:20,color:'var(--color-text-primary)',fontWeight:500,lineHeight:1.6}}>{eq}</div>
+      <div style={{background:C.bg,borderRadius:8,padding:'14px 18px',border:`0.5px solid ${C.border}`}}>
+        {sub&&<div style={{fontSize:10,fontWeight:500,letterSpacing:'.08em',textTransform:'uppercase',color:C.text3,marginBottom:6}}>{sub}</div>}
+        <div style={{fontFamily:'monospace',fontSize:20,color:C.text,fontWeight:500,lineHeight:1.6}}>{eq}</div>
       </div>
     </div>
   )
@@ -104,17 +75,17 @@ const Steps = ({steps,answer,answerType='ok'}) => (
   <div style={{margin:'8px 0 14px'}}>
     <div style={{display:'flex',flexDirection:'column',gap:0}}>
       {steps.map(([action,result],i)=>(
-        <div key={i} style={{display:'flex',gap:12,padding:'10px 0',borderBottom:'0.5px solid var(--color-border-tertiary)'}}>
-          <div style={{width:22,height:22,borderRadius:'50%',background:'var(--color-background-secondary)',border:'0.5px solid var(--color-border-secondary)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:500,color:'var(--color-text-secondary)',flexShrink:0,marginTop:2}}>{i+1}</div>
+        <div key={i} style={{display:'flex',gap:12,padding:'10px 0',borderBottom:`0.5px solid ${C.border}`}}>
+          <div style={{width:22,height:22,borderRadius:'50%',background:C.bg,border:`0.5px solid ${C.border}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:500,color:C.text2,flexShrink:0,marginTop:2}}>{i+1}</div>
           <div style={{flex:1}}>
-            <div style={{fontSize:13,color:'var(--color-text-secondary)',marginBottom:result?5:0,lineHeight:1.5}}>{action}</div>
-            {result&&<div style={{fontFamily:'var(--font-mono)',fontSize:14,color:'var(--color-text-primary)',background:'var(--color-background-secondary)',padding:'6px 10px',borderRadius:'var(--border-radius-md)',display:'inline-block'}}>{result}</div>}
+            <div style={{fontSize:13,color:C.text2,marginBottom:result?5:0,lineHeight:1.5}}>{action}</div>
+            {result&&<div style={{fontFamily:'monospace',fontSize:14,color:C.text,background:C.bg,padding:'6px 10px',borderRadius:8,display:'inline-block'}}>{result}</div>}
           </div>
         </div>
       ))}
     </div>
     {answer&&(
-      <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',borderRadius:'var(--border-radius-md)',marginTop:12,
+      <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',borderRadius:8,marginTop:12,
         background:answerType==='ok'?'#EAF3DE':answerType==='none'?'#FCEBEB':'#E6F1FB',
         border:`0.5px solid ${answerType==='ok'?'#C0DD97':answerType==='none'?'#F7C1C1':'#B5D4F4'}`
       }}>
@@ -122,7 +93,7 @@ const Steps = ({steps,answer,answerType='ok'}) => (
           {answerType==='ok'?'✓':answerType==='none'?'∅':'∞'}
         </div>
         <div>
-          <div style={{fontFamily:'var(--font-mono)',fontSize:15,fontWeight:500,color:answerType==='ok'?'#27500A':answerType==='none'?'#791F1F':'#0C447C'}}>{answer[0]}</div>
+          <div style={{fontFamily:'monospace',fontSize:15,fontWeight:500,color:answerType==='ok'?'#27500A':answerType==='none'?'#791F1F':'#0C447C'}}>{answer[0]}</div>
           {answer[1]&&<div style={{fontSize:12,color:answerType==='ok'?'#3B6D11':answerType==='none'?'#A32D2D':'#185FA5',marginTop:2}}>{answer[1]}</div>}
         </div>
       </div>
@@ -145,8 +116,8 @@ const TTABS = [
 const TEORIA = {
 
 def: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:16}}>
-    <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>Równanie liniowe</strong> to zdanie matematyczne z znakiem <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>=</strong> i zmienną x w pierwszej potędze. Rozwiązanie, zwane <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>korzeniem</strong>, to wartość x która czyni to zdanie prawdziwym.
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:16}}>
+    <strong style={{color:C.text,fontWeight:500}}>Równanie liniowe</strong> to zdanie matematyczne z znakiem <strong style={{color:C.text,fontWeight:500}}>=</strong> i zmienną x w pierwszej potędze. Rozwiązanie, zwane <strong style={{color:C.text,fontWeight:500}}>korzeniem</strong>, to wartość x która czyni to zdanie prawdziwym.
   </p>
   <Formula title="Ogólna postać równania liniowego" lines={['[a]x + [b] = {c}']} note="gdzie a ≠ 0; a, b, c są liczbami rzeczywistymi" />
   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
@@ -154,10 +125,10 @@ def: <>
       ['Wyrażenie','2x + 3','Brak znaku =. Można obliczyć wartość, ale nie można go rozwiązać.','#EEEDFE','#3C3489','#534AB7'],
       ['Równanie','2x + 3 = 11','Jest znak =. Szukamy x. Rozwiązanie: x = 4 (bo 2 · 4+3=11).','#EAF3DE','#27500A','#3B6D11'],
     ].map(([t,f,d,bg,c,bc])=>(
-      <div key={t} style={{background:bg,borderRadius:'var(--border-radius-md)',padding:'14px',borderLeft:`3px solid ${bc}`}}>
+      <div key={t} style={{background:bg,borderRadius:8,padding:'14px',borderLeft:`3px solid ${bc}`}}>
         <div style={{fontSize:11,fontWeight:500,color:c,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{t}</div>
-        <div style={{fontFamily:'var(--font-mono)',fontSize:17,color:'var(--color-text-primary)',marginBottom:8,fontWeight:500}}>{f}</div>
-        <div style={{fontSize:12,color:'var(--color-text-secondary)',lineHeight:1.55}}>{d}</div>
+        <div style={{fontFamily:'monospace',fontSize:17,color:C.text,marginBottom:8,fontWeight:500}}>{f}</div>
+        <div style={{fontSize:12,color:C.text2,lineHeight:1.55}}>{d}</div>
       </div>
     ))}
   </div>
@@ -168,63 +139,118 @@ def: <>
       ['Brak rozwiązań (∅)','Równanie sprzeczne',         'Po uproszczeniu: np. 5 = −2','#FCEBEB','#791F1F'],
       ['Nieskończenie wiele','Równanie tożsamościowe',    'Po uproszczeniu: np. 0 = 0','#E6F1FB','#0C447C'],
     ].map(([t,p,d,bg,c])=>(
-      <div key={t} style={{display:'flex',gap:12,padding:'10px 14px',background:bg,borderRadius:'var(--border-radius-md)'}}>
+      <div key={t} style={{display:'flex',gap:12,padding:'10px 14px',background:bg,borderRadius:8}}>
         <div style={{fontSize:13,fontWeight:500,color:c,minWidth:190,flexShrink:0}}>{t}</div>
         <div style={{flex:1}}>
-          <div style={{fontFamily:'var(--font-mono)',fontSize:12,color:c,marginBottom:2}}>{p}</div>
-          <div style={{fontSize:12,color:'var(--color-text-secondary)'}}>{d}</div>
+          <div style={{fontFamily:'monospace',fontSize:12,color:c,marginBottom:2}}>{p}</div>
+          <div style={{fontSize:12,color:C.text2}}>{d}</div>
         </div>
       </div>
     ))}
   </div>
-  <div style={T.callout('info')}>
+  <div style={{background:'#E6F1FB',borderLeft:'3px solid #185FA5',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#0C447C',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Na egzaminie CKE</strong> zdecydowana większość zadań z równaniami ma jedno rozwiązanie. Równania sprzeczne i tożsamościowe pojawiają się rzadko — ale wystarczy jeden raz się na nie natknąć na egzaminie, by zrozumieć ich wartość.
   </div>
 </>,
 
-zasady: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:16}}>
-    Rozwiązywanie równań opiera się na jednej zasadzie: <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>możemy wykonywać dowolne działania na obu stronach jednocześnie</strong> — równość zostaje zachowana. Cel jest zawsze ten sam: doprowadzić do postaci <strong style={{fontFamily:'var(--font-mono)',fontWeight:500}}>x = liczba</strong>.
+zasady: <div>
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+    Rozwiązywanie równań opiera się na jednej fundamentalnej zasadzie: <strong style={{color:C.text,fontWeight:500}}>możemy wykonywać dowolne działania na obu stronach równania jednocześnie</strong> — i równość nie zostanie naruszona. Cel jest zawsze ten sam: doprowadzić do postaci <strong style={{fontFamily:'monospace',fontWeight:500}}>x = liczba</strong>.
   </p>
-  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+
+  <SH>Cztery dozwolone operacje</SH>
+  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:14}}>
     {[
-      ['+c','Dodaj tę samą liczbę','x − 5 = 3  →  x = 8','Dodajemy 5 do obu stron'],
-      ['−c','Odejmij tę samą liczbę','x + 7 = 12  →  x = 5','Odejmujemy 7 od obu stron'],
-      ['×c','Pomnóż przez liczbę ≠ 0','x ÷ 4 = 3  →  x = 12','Mnożymy przez 4'],
-      ['÷c','Podziel przez liczbę ≠ 0','6x = 18  →  x = 3','Dzielimy przez 6'],
-    ].map(([op,t,p,d])=>(
-      <div key={op} style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'14px',border:'0.5px solid var(--color-border-tertiary)'}}>
-        <div style={{fontFamily:'var(--font-mono)',fontSize:22,fontWeight:500,color:'var(--color-text-primary)',marginBottom:4}}>… {op} …</div>
-        <div style={{fontSize:12,fontWeight:500,color:'var(--color-text-secondary)',marginBottom:8}}>{t}</div>
-        <div style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--color-text-primary)',marginBottom:3}}>{p}</div>
-        <div style={{fontSize:11,color:'var(--color-text-tertiary)'}}>{d}</div>
+      {op:'+c', title:'Dodawanie', eq:'x − 5 = 3', wynik:'x = 8', note:'Dodajemy 5 do obu stron', bg:'#EAF3DE', c:'#27500A'},
+      {op:'−c', title:'Odejmowanie', eq:'x + 7 = 12', wynik:'x = 5', note:'Odejmujemy 7 od obu stron', bg:'#EAF3DE', c:'#27500A'},
+      {op:'× c', title:'Mnożenie (c ≠ 0)', eq:'x ÷ 4 = 3', wynik:'x = 12', note:'Mnożymy przez 4', bg:'#E6F1FB', c:'#0C447C'},
+      {op:'÷ c', title:'Dzielenie (c ≠ 0)', eq:'6x = 18', wynik:'x = 3', note:'Dzielimy przez 6', bg:'#E6F1FB', c:'#0C447C'},
+    ].map(({op,title,eq,wynik,note,bg,c})=>(
+      <div key={op} style={{background:bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+          <span style={{fontFamily:'monospace',fontSize:18,fontWeight:700,color:c}}>{op}</span>
+          <span style={{fontSize:12,fontWeight:500,color:c}}>{title}</span>
+        </div>
+        <div style={{fontFamily:'monospace',fontSize:13,color:C.text,marginBottom:4}}>{eq}  →  <strong>{wynik}</strong></div>
+        <div style={{fontSize:11,color:C.text3}}>{note}</div>
       </div>
     ))}
   </div>
-  <div style={T.callout('err')}>
-    <strong>Czego NIE wolno robić:</strong> dzielić przez 0 (niedozwolone matematycznie) · wykonywać różnych działań po różnych stronach · pomijać jakikolwiek wyraz przy mnożeniu.
+
+  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,marginBottom:16}}>
+    <strong>Czego NIE wolno robić:</strong><br/>
+    — dzielić przez 0 (matematycznie niedozwolone)<br/>
+    — wykonywać różnych działań po różnych stronach (np. dodać 3 do lewej, a 5 do prawej)<br/>
+    — przy mnożeniu przez liczbę pominąć jakikolwiek wyraz równania
   </div>
-  <SH>Pojęcie równań równoważnych</SH>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:12}}>
-    Dwa równania są <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>równoważne</strong> gdy mają ten sam zbiór rozwiązań. Każda dozwolona operacja przekształca równanie w równoważne — dlatego możemy "prowadzić" równanie krok po kroku do rozwiązania.
+
+  <SH>Jak wyglądają kolejne równoważne przekształcenia</SH>
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:10}}>
+    Dwa równania są <strong style={{color:C.text,fontWeight:500}}>równoważne</strong> gdy mają dokładnie ten sam zbiór rozwiązań. Każda dozwolona operacja tworzy nowe równanie równoważne. Dlatego możemy "prowadzić" równanie krok po kroku, aż doprowdzimy je do postaci <span style={{fontFamily:'monospace'}}>x = liczba</span>.
   </p>
-  <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'16px 20px',border:'0.5px solid var(--color-border-tertiary)'}}>
+  <div style={{background:C.bg,borderRadius:8,padding:'16px 20px',border:`0.5px solid ${C.border}`,marginBottom:14}}>
     {[
-      ['2x + 6 = 12', null],
-      ['2x = 6', 'odejmujemy 6 od obu stron'],
-      ['x = 3  ✓', 'dzielimy obie strony przez 2'],
-    ].map(([eq, note], i) => (
-      <div key={i} style={{display:'flex',alignItems:'baseline',gap:16,padding:'8px 0',borderBottom:i<2?'0.5px solid var(--color-border-tertiary)':'none'}}>
-        <div style={{fontFamily:'var(--font-mono)',fontSize:15,color:'var(--color-text-primary)',minWidth:140}}>{eq}</div>
-        {note && <div style={{fontSize:12,color:'var(--color-text-tertiary)'}}>{note}</div>}
+      ['4x + 10 = 26', null, null],
+      ['4x = 16', 'odejmujemy 10 od obu stron', '−10'],
+      ['x = 4  ✓', 'dzielimy obie strony przez 4', '÷4'],
+    ].map(([eq, note, op], i) => (
+      <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',borderBottom:i<2?`0.5px solid ${C.border}`:'none'}}>
+        <div style={{fontFamily:'monospace',fontSize:16,color:i===2?'#27500A':C.text,fontWeight:i===2?600:400,minWidth:160}}>{eq}</div>
+        {note&&<div style={{fontSize:12,color:C.text3,flex:1}}>{note}</div>}
+        {op&&<div style={{fontFamily:'monospace',fontSize:13,fontWeight:600,color:'#0C447C',background:'#E6F1FB',padding:'3px 8px',borderRadius:6,flexShrink:0}}>{op}</div>}
       </div>
     ))}
   </div>
-</>,
+
+  <SH>Przenoszenie wyrazów — skrótowa technika</SH>
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:10}}>
+    W praktyce zamiast pisać "odejmujemy x od obu stron" mówimy że <strong style={{color:C.text,fontWeight:500}}>przenosimy wyraz na drugą stronę i zmieniamy jego znak</strong>. To skrót — ale wynik jest identyczny.
+  </p>
+  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+    <div style={{background:C.bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
+      <div style={{fontSize:11,fontWeight:500,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:8}}>Zapis pełny</div>
+      <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:2.2}}>
+        3x + 5 = 14<br/>
+        3x + 5 − 5 = 14 − 5<br/>
+        3x = 9<br/>
+        3x ÷ 3 = 9 ÷ 3<br/>
+        x = 3
+      </div>
+    </div>
+    <div style={{background:C.bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
+      <div style={{fontSize:11,fontWeight:500,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:8}}>Zapis skrótowy (używamy w praktyce)</div>
+      <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:2.2}}>
+        3x + 5 = 14<br/>
+        3x = 14 − 5<br/>
+        3x = 9<br/>
+        x = 3
+      </div>
+    </div>
+  </div>
+  <div style={{background:'#FAEEDA',borderLeft:'3px solid #854F0B',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#633806',lineHeight:1.75,marginBottom:14}}>
+    <strong>Zmiana strony = zmiana znaku:</strong> +5 po lewej → −5 po prawej · −7 po prawej → +7 po lewej · +3x po prawej → −3x po lewej.
+  </div>
+
+  <SH>Co warto zapamiętać — ściągawka</SH>
+  <div style={{display:'flex',flexDirection:'column',gap:6}}>
+    {[
+      ['Cel każdego kroku', 'Wyizolować x — doprowadzić do x = liczba', '#EEEDFE', '#3C3489'],
+      ['Operacja musi być symetryczna', 'Robisz to SAMO po OBUEQUATIONS stronach', '#EAF3DE', '#27500A'],
+      ['Zmiana strony', 'Przenosząc wyraz na drugą stronę — zmieniasz jego znak', '#FAEEDA', '#633806'],
+      ['Dzielenie przez ujemną', 'Dozwolone — wynik zmienia znak, ale to nie jest nierówność!', '#E6F1FB', '#0C447C'],
+      ['Sprawdzenie', 'Zawsze podstaw wynik do ORYGINALNEGO równania i zweryfikuj', '#F5F3FF', '#4C1D95'],
+    ].map(([zasada, opis, bg, c]) => (
+      <div key={zasada} style={{display:'flex',gap:12,padding:'10px 14px',background:bg,borderRadius:8,alignItems:'flex-start'}}>
+        <div style={{fontSize:13,fontWeight:500,color:c,minWidth:210,flexShrink:0}}>{zasada}</div>
+        <div style={{fontSize:13,color:C.text2,lineHeight:1.5}}>{opis}</div>
+      </div>
+    ))}
+  </div>
+</div>,
 
 proste: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:14}}>
-    Równanie <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>ax + b = c</strong> rozwiązujemy w dwóch krokach: przenosimy stałą na prawą stronę, dzielimy przez współczynnik.
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+    Równanie <strong style={{color:C.text,fontWeight:500}}>ax + b = c</strong> rozwiązujemy w dwóch krokach: przenosimy stałą na prawą stronę, dzielimy przez współczynnik.
   </p>
   <Formula lines={['[a]x + [b] = {c}  →  [a]x = {c} − [b]  →  x = ({c} − [b]) ÷ [a]']} />
 
@@ -252,16 +278,16 @@ proste: <>
     ['Zapisujemy wynik:','x = y / (5w)'],
   ]} answer={['x = y/(5w)','Kluczowe: dzielimy przez całe wyrażenie 5w, nie tylko przez 5!']} />
 
-  <div style={T.callout('warn')}>
+  <div style={{background:'#FAEEDA',borderLeft:'3px solid #854F0B',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#633806',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Ważne dla CKE:</strong> Gdy wynik wychodzi ułamkiem, zapisz go jako ułamek zwykły lub dziesiętny — oba są akceptowane przez egzaminatorów. Nie szukaj wyniku całkowitego "na siłę".
   </div>
 </>,
 
 obu: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:14}}>
-    Gdy x pojawia się po <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>obu stronach</strong> równania — przenosimy wszystkie wyrazy z x na lewą stronę, liczby na prawą.
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+    Gdy x pojawia się po <strong style={{color:C.text,fontWeight:500}}>obu stronach</strong> równania — przenosimy wszystkie wyrazy z x na lewą stronę, liczby na prawą.
   </p>
-  <div style={T.callout('err')}>
+  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Przenosząc wyraz na drugą stronę — zawsze zmieniamy jego znak.</strong><br/>
     +5x po prawej → −5x po lewej<br/>
     −3 po lewej → +3 po prawej<br/>
@@ -290,24 +316,24 @@ obu: <>
       ['C.','x = 5/5 = 1','Poprawne — wynik'],
       ['D.','5x − 5 = 0','BŁĘDNE — odjęto 5 tylko od lewej strony!'],
     ].map(([l,eq,d],i)=>(
-      <div key={l} style={{display:'flex',gap:10,padding:'10px 14px',borderRadius:'var(--border-radius-md)',background:i===3?'#FCEBEB':'var(--color-background-secondary)',border:`0.5px solid ${i===3?'#F7C1C1':'var(--color-border-tertiary)'}`}}>
-        <span style={{fontWeight:500,color:i===3?'#A32D2D':'var(--color-text-secondary)',flexShrink:0}}>{l}</span>
-        <span style={{fontFamily:'var(--font-mono)',color:i===3?'#791F1F':'var(--color-text-primary)',flex:1}}>{eq}</span>
-        <span style={{fontSize:12,color:i===3?'#A32D2D':'var(--color-text-tertiary)'}}>{d}</span>
+      <div key={l} style={{display:'flex',gap:10,padding:'10px 14px',borderRadius:8,background:i===3?'#FCEBEB':C.bg,border:`0.5px solid ${i===3?'#F7C1C1':C.border}`}}>
+        <span style={{fontWeight:500,color:i===3?'#A32D2D':C.text2,flexShrink:0}}>{l}</span>
+        <span style={{fontFamily:'monospace',color:i===3?'#791F1F':C.text,flex:1}}>{eq}</span>
+        <span style={{fontSize:12,color:i===3?'#A32D2D':C.text3}}>{d}</span>
       </div>
     ))}
   </div>
-  <div style={T.callout('tip')}>
+  <div style={{background:'#EAF3DE',borderLeft:'3px solid #3B6D11',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#27500A',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Wskazówka do CKE:</strong> W zadaniach zamkniętych dotyczących przekształceń równań sprawdź każdą opcję podstawiając do oryginalnego równania — nie polegaj tylko na "wyglądzie" wzoru.
   </div>
 </>,
 
 nawiasy: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:14}}>
-    Gdy w równaniu jest nawias — <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>najpierw go rozwijamy</strong>, potem rozwiązujemy. To obowiązkowy krok, który nie podlega negocjacjom.
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+    Gdy w równaniu jest nawias — <strong style={{color:C.text,fontWeight:500}}>najpierw go rozwijamy</strong>, potem rozwiązujemy. To obowiązkowy krok, który nie podlega negocjacjom.
   </p>
   <Formula title="Rozdzielność mnożenia" lines={['[a]([b]x + [c]) = [a]·[b]x + [a]·[c]']} note="Mnożysz liczbę przez KAŻDY wyraz w nawiasie" />
-  <div style={T.callout('err')}>
+  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Najczęstszy błąd uczniów:</strong> 3(x − 4) = 3x − 4.<br/>
     Poprawnie: 3(x − 4) = 3x − <strong>12</strong>.<br/>
     Mnożysz przez każdy wyraz — tu przez x i przez −4.
@@ -344,17 +370,17 @@ nawiasy: <>
     ['Dzielimy przez 2:','x = −7/2 = −3,5'],
   ]} answer={['x = −3,5','Sprawdzenie: 5 · (−0,5)−2 · (−11,5)=−2,5+23=20,5 i 3 · (5,5)+4=20,5 ✓']} />
 
-  <div style={T.callout('tip')}>
+  <div style={{background:'#EAF3DE',borderLeft:'3px solid #3B6D11',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#27500A',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Strategia przy wielu nawiasach:</strong> Rozwiń wszystkie nawiasy w jednym kroku, potem zbierz wyrazy podobne po każdej stronie osobno, a na końcu przenoś między stronami. Nie mieszaj tych etapów.
   </div>
 </>,
 
 ulamki: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:14}}>
-    Ułamki w równaniu wyglądają groźnie, ale mają prostą strategię: <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>mnożymy każdy wyraz przez NWW mianowników</strong>. Ułamki znikają i wracamy do znajomego typu.
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+    Ułamki w równaniu wyglądają groźnie, ale mają prostą strategię: <strong style={{color:C.text,fontWeight:500}}>mnożymy każdy wyraz przez NWW mianowników</strong>. Ułamki znikają i wracamy do znajomego typu.
   </p>
-  <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'14px 16px',marginBottom:16,border:'0.5px solid var(--color-border-tertiary)'}}>
-    <div style={{fontSize:12,fontWeight:500,color:'var(--color-text-secondary)',marginBottom:10}}>Strategia w 3 krokach:</div>
+  <div style={{background:C.bg,borderRadius:8,padding:'14px 16px',marginBottom:16,border:`0.5px solid ${C.border}`}}>
+    <div style={{fontSize:12,fontWeight:500,color:C.text2,marginBottom:10}}>Strategia w 3 krokach:</div>
     {[
       ['1','Znajdź NWW wszystkich mianowników w równaniu'],
       ['2','Pomnóż KAŻDY wyraz (po obu stronach) przez NWW — ułamki znikają'],
@@ -362,7 +388,7 @@ ulamki: <>
     ].map(([n,t])=>(
       <div key={n} style={{display:'flex',gap:10,marginBottom:8,alignItems:'flex-start'}}>
         <div style={{width:22,height:22,borderRadius:'50%',background:'#185FA5',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,flexShrink:0}}>{n}</div>
-        <div style={{fontSize:13,color:'var(--color-text-secondary)',lineHeight:1.5}}>{t}</div>
+        <div style={{fontSize:13,color:C.text2,lineHeight:1.5}}>{t}</div>
       </div>
     ))}
   </div>
@@ -387,22 +413,22 @@ ulamki: <>
     ['Dzielimy przez 5:','x = 14/5 = 2,8'],
   ]} answer={['x = 14/5','Sprawdzenie: (2 · 2,8+1)/3−(2,8−2)/4 = 6,6/3−0,8/4 = 2,2−0,2=2 ✓']} />
 
-  <div style={T.callout('err')}>
+  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Pułapka:</strong> Mnożąc przez NWW musisz pomnożyć KAŻDY wyraz — też liczby całkowite!<br/>
-    Przykład: <span style={{fontFamily:'var(--font-mono)'}}>x/3 + 2 = 5</span>, ×3:<br/>
-    <span style={{color:'#A32D2D',fontFamily:'var(--font-mono)'}}>x + 2 = 15 ✗</span> (nie pomnożono 2)<br/>
-    <span style={{color:'#27500A',fontFamily:'var(--font-mono)'}}>x + 6 = 15 ✓</span> (pomnożono każdy wyraz)
+    Przykład: <span style={{fontFamily:'monospace'}}>x/3 + 2 = 5</span>, ×3:<br/>
+    <span style={{color:'#A32D2D',fontFamily:'monospace'}}>x + 2 = 15 ✗</span> (nie pomnożono 2)<br/>
+    <span style={{color:'#27500A',fontFamily:'monospace'}}>x + 6 = 15 ✓</span> (pomnożono każdy wyraz)
   </div>
 </>,
 
 sprzecz: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:14}}>
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
     Nie każde równanie ma rozwiązanie. Po przekształceniach możemy dojść do zdania zawsze fałszywego lub zawsze prawdziwego — niezależnie od wartości x.
   </p>
 
   <SH>Typ 1: Równanie sprzeczne — brak rozwiązań</SH>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:12}}>
-    Równanie sprzeczne po uproszczeniu daje fałszywe zdanie (np. <span style={{fontFamily:'var(--font-mono)'}}>3 = 7</span>). Nie ma żadnego rozwiązania.
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:12}}>
+    Równanie sprzeczne po uproszczeniu daje fałszywe zdanie (np. <span style={{fontFamily:'monospace'}}>3 = 7</span>). Nie ma żadnego rozwiązania.
   </p>
 
   <Task level="hard" label="Rozpoznaj typ równania" eq="3(2x + 1) − 2(3x − 4) = 15" />
@@ -412,8 +438,8 @@ sprzecz: <>
   ]} answer={['Brak rozwiązań — równanie sprzeczne','11 ≠ 15. Zbiór rozwiązań: ∅']} answerType="none" />
 
   <SH>Typ 2: Równanie tożsamościowe — nieskończenie wiele rozwiązań</SH>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:12}}>
-    Równanie tożsamościowe jest prawdziwe dla każdej wartości x. Po uproszczeniu daje zdanie zawsze prawdziwe (np. <span style={{fontFamily:'var(--font-mono)'}}>0 = 0</span>).
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:12}}>
+    Równanie tożsamościowe jest prawdziwe dla każdej wartości x. Po uproszczeniu daje zdanie zawsze prawdziwe (np. <span style={{fontFamily:'monospace'}}>0 = 0</span>).
   </p>
 
   <Task level="hard" label="Rozpoznaj typ równania" eq="4(x + 2) − 2(2x − 1) = 10" />
@@ -423,7 +449,7 @@ sprzecz: <>
   ]} answer={['Nieskończenie wiele rozwiązań — równanie tożsamościowe','0=0. Każda liczba rzeczywista jest rozwiązaniem. Zbiór: ℝ']} answerType="inf" />
 
   <SH>Jak rozpoznać — tabela</SH>
-  <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'16px',border:'0.5px solid var(--color-border-tertiary)'}}>
+  <div style={{background:C.bg,borderRadius:8,padding:'16px',border:`0.5px solid ${C.border}`}}>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
       {[
         ['Wynik','Typ','Rozwiązania'],
@@ -431,11 +457,11 @@ sprzecz: <>
         ['a = b (a≠b)','Sprzeczne','Brak (∅)'],
         ['0 = 0  lub  a = a','Tożsamościowe','Wszystkie (ℝ)'],
       ].map((row,i)=>row.map((cell,j)=>(
-        <div key={`${i}${j}`} style={{padding:'8px 10px',borderRadius:'var(--border-radius-md)',fontSize:12,fontFamily:i>0&&j===0?'var(--font-mono)':'inherit',
-          background:i===0?'#0F1729':'var(--color-background-primary)',
-          color:i===0?'rgba(255,255,255,.6)':j===0?'var(--color-text-secondary)':j===1?'var(--color-text-primary)':'var(--color-text-secondary)',
+        <div key={`${i}${j}`} style={{padding:'8px 10px',borderRadius:8,fontSize:12,fontFamily:i>0&&j===0?'monospace':'inherit',
+          background:i===0?'#0F1729':C.white,
+          color:i===0?'rgba(255,255,255,.6)':j===0?C.text2:j===1?C.text:C.text2,
           fontWeight:i===0?500:400,
-          border:i>0?'0.5px solid var(--color-border-tertiary)':'none',
+          border:i>0?`0.5px solid ${C.border}`:'none',
         }}>{cell}</div>
       )))}
     </div>
@@ -443,11 +469,11 @@ sprzecz: <>
 </>,
 
 bledy: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:'var(--color-text-secondary)',marginBottom:14}}>
-    Sprawdzenie rozwiązania w zadaniach otwartych CKE jest <strong style={{color:'var(--color-text-primary)',fontWeight:500}}>obowiązkowe i punktowane</strong>. Pominięcie = utrata punktu za "weryfikację".
+  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+    Sprawdzenie rozwiązania w zadaniach otwartych CKE jest <strong style={{color:C.text,fontWeight:500}}>obowiązkowe i punktowane</strong>. Pominięcie = utrata punktu za "weryfikację".
   </p>
 
-  <div style={{background:'#0F1729',borderRadius:'var(--border-radius-lg)',padding:'18px 20px',marginBottom:16}}>
+  <div style={{background:'#0F1729',borderRadius:14,padding:'18px 20px',marginBottom:16}}>
     <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,.6)',marginBottom:14}}>Wzorcowy zapis sprawdzenia (tak pisze się w arkuszu CKE):</div>
     {[
       ['Napisz oryginalne równanie','4x + 5(x−64) = 400'],
@@ -459,7 +485,7 @@ bledy: <>
         <div style={{width:20,height:20,borderRadius:'50%',background:'rgba(255,255,255,.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,color:'rgba(255,255,255,.6)',flexShrink:0,marginTop:1}}>{i+1}</div>
         <div>
           <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginBottom:2}}>{s}</div>
-          <div style={{fontFamily:'var(--font-mono)',fontSize:13,color:'#FF7A4D'}}>{eq}</div>
+          <div style={{fontFamily:'monospace',fontSize:13,color:'#FF7A4D'}}>{eq}</div>
         </div>
       </div>
     ))}
@@ -474,13 +500,13 @@ bledy: <>
     {b:'Przy ułamkach — pominięcie mnożenia wyrazów całkowitych',w:'x/3 + 2 = 5, ×3: x + 2 = 15 ✗',ok:'x/3 + 2 = 5, ×3: x + 6 = 15 ✓'},
     {b:'Pominięcie sprawdzenia',w:'Brak weryfikacji = brak punktu za uzasadnienie',ok:'Zawsze dopisz sprawdzenie w ORYGINALNYM równaniu'},
   ].map(({b,w,ok})=>(
-    <div key={b} style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'12px 14px',marginBottom:8,borderLeft:'3px solid #A32D2D',border:'0.5px solid var(--color-border-tertiary)',borderLeftWidth:3}}>
-      <div style={{fontSize:12,fontWeight:500,color:'var(--color-text-primary)',marginBottom:6}}>{b}</div>
-      <div style={{fontFamily:'var(--font-mono)',fontSize:12,color:'#A32D2D',marginBottom:5}}>{w}</div>
-      <div style={{fontFamily:'var(--font-mono)',fontSize:12,color:'#27500A'}}>✓ {ok}</div>
+    <div key={b} style={{background:C.bg,borderRadius:8,padding:'12px 14px',marginBottom:8,borderLeft:'3px solid #A32D2D',border:`0.5px solid ${C.border}`,borderLeftWidth:3}}>
+      <div style={{fontSize:12,fontWeight:500,color:C.text,marginBottom:6}}>{b}</div>
+      <div style={{fontFamily:'monospace',fontSize:12,color:'#A32D2D',marginBottom:5}}>{w}</div>
+      <div style={{fontFamily:'monospace',fontSize:12,color:'#27500A'}}>✓ {ok}</div>
     </div>
   ))}
-  <div style={T.callout('tip')}>
+  <div style={{background:'#EAF3DE',borderLeft:'3px solid #3B6D11',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#27500A',lineHeight:1.75,margin:'14px 0'}}>
     <strong>Złota zasada CKE:</strong> W zadaniach otwartych zapisuj każdy krok — egzaminatorzy przyznają punkty za tok rozwiązania, nawet przy błędzie rachunkowym w ostatnim kroku. Nie pisz tylko wyniku!
   </div>
 </>,
@@ -491,30 +517,30 @@ function TeoriaContent({onComplete}) {
   const [tab,setTab] = useState('def')
   const idx = TTABS.findIndex(t=>t.id===tab)
   return (
-    <div style={T.card}>
+    <div style={card}>
       <SecLabel tab={idx+1} total={TTABS.length}>Teoria</SecLabel>
-      <div style={{display:'flex',gap:5,marginBottom:18,flexWrap:'wrap',paddingBottom:16,borderBottom:'0.5px solid var(--color-border-tertiary)'}}>
+      <div style={{display:'flex',gap:5,marginBottom:18,flexWrap:'wrap',paddingBottom:16,borderBottom:`0.5px solid ${C.border}`}}>
         {TTABS.map((t,i)=>{
           const isDone = i < idx
           const isActive = t.id === tab
           return (
             <button key={t.id} onClick={()=>setTab(t.id)} style={{
               padding:'5px 12px', fontSize:11, fontWeight:500, borderRadius:20, cursor:'pointer', fontFamily:'inherit', transition:'all .15s',
-              border:`0.5px solid ${isActive?'#0F1729':isDone?'var(--color-border-success)':'var(--color-border-tertiary)'}`,
-              background:isActive?'#0F1729':isDone?'var(--color-background-success)':'var(--color-background-primary)',
-              color:isActive?'#fff':isDone?'var(--color-text-success)':'var(--color-text-secondary)',
+              border:`0.5px solid ${isActive?'#0F1729':isDone?'#C0DD97':C.border}`,
+              background:isActive?'#0F1729':isDone?'#EAF3DE':C.white,
+              color:isActive?'#fff':isDone?'#27500A':C.text2,
             }}>{t.label}</button>
           )
         })}
       </div>
       {TEORIA[tab]}
-      <div style={{display:'flex',justifyContent:'space-between',marginTop:22,gap:8,paddingTop:16,borderTop:'0.5px solid var(--color-border-tertiary)'}}>
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:22,gap:8,paddingTop:16,borderTop:`0.5px solid ${C.border}`}}>
         {idx>0
-          ? <button onClick={()=>setTab(TTABS[idx-1].id)} style={T.btn()}>← {TTABS[idx-1].label}</button>
+          ? <button onClick={()=>setTab(TTABS[idx-1].id)} style={btn()}>← {TTABS[idx-1].label}</button>
           : <div/>}
         {idx<TTABS.length-1
-          ? <button onClick={()=>setTab(TTABS[idx+1].id)} style={T.btn({background:'#0F1729',color:'#fff',border:'none'})}>{TTABS[idx+1].label} →</button>
-          : <button onClick={onComplete} style={T.btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Ukończyłem teorię →</button>}
+          ? <button onClick={()=>setTab(TTABS[idx+1].id)} style={btn({background:'#0F1729',color:'#fff',border:'none'})}>{TTABS[idx+1].label} →</button>
+          : <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Ukończyłem teorię →</button>}
       </div>
     </div>
   )
@@ -537,58 +563,58 @@ function QuizContent({onComplete}) {
   if(qi>=QUIZ.length){
     const ok=results.filter(r=>r).length
     return(
-      <div style={T.card}>
+      <div style={card}>
         <div style={{textAlign:'center',padding:'16px 0 24px'}}>
           <div style={{fontSize:52,marginBottom:8}}>{ok>=6?'🎯':ok>=4?'👍':'📚'}</div>
-          <div style={{fontFamily:'var(--font-sans)',fontSize:24,fontWeight:500,color:'var(--color-text-primary)',marginBottom:6}}>{ok}/{QUIZ.length} poprawnych</div>
-          <div style={{fontSize:14,color:'var(--color-text-secondary)'}}>{ok>=6?'Doskonale! Czas na fiszki.':ok>=4?'Dobry wynik. Powtórz słabsze sekcje.':'Wróć do teorii i spróbuj ponownie.'}</div>
+          <div style={{fontFamily:'DM Sans', sans-serif,fontSize:24,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/{QUIZ.length} poprawnych</div>
+          <div style={{fontSize:14,color:C.text2}}>{ok>=6?'Doskonale! Czas na fiszki.':ok>=4?'Dobry wynik. Powtórz słabsze sekcje.':'Wróć do teorii i spróbuj ponownie.'}</div>
         </div>
         <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
-          <button onClick={()=>{setQi(0);setSel(null);setDone(false);setResults([])}} style={T.btn()}>Powtórz quiz</button>
-          <button onClick={onComplete} style={T.btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Dalej — Fiszki →</button>
+          <button onClick={()=>{setQi(0);setSel(null);setDone(false);setResults([])}} style={btn()}>Powtórz quiz</button>
+          <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Dalej — Fiszki →</button>
         </div>
       </div>
     )
   }
   const q=QUIZ[qi]
   return(
-    <div style={T.card}>
+    <div style={card}>
       <SecLabel tab={qi+1} total={QUIZ.length}>Quiz</SecLabel>
       <div style={{display:'flex',gap:4,marginBottom:18}}>
-        {QUIZ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<qi?'#00B894':i===qi?'#F5541E':'var(--color-border-tertiary)',transition:'background .3s'}}/>)}
+        {QUIZ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<qi?'#00B894':i===qi?'#F5541E':C.border,transition:'background .3s'}}/>)}
       </div>
-      <div style={{fontSize:15,fontWeight:500,color:'var(--color-text-primary)',marginBottom:12,lineHeight:1.5}}>{q.q}</div>
-      {q.eq&&<div style={{background:'#0F1729',borderRadius:'var(--border-radius-md)',padding:'12px 18px',marginBottom:16,display:'inline-block'}}>
-        <div style={{fontFamily:'var(--font-mono)',fontSize:18,color:'#fff'}}>{q.eq}</div>
+      <div style={{fontSize:15,fontWeight:500,color:C.text,marginBottom:12,lineHeight:1.5}}>{q.q}</div>
+      {q.eq&&<div style={{background:'#0F1729',borderRadius:8,padding:'12px 18px',marginBottom:16,display:'inline-block'}}>
+        <div style={{fontFamily:'monospace',fontSize:18,color:'#fff'}}>{q.eq}</div>
       </div>}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
         {q.opts.map((o,i)=>{
-          let bg='var(--color-background-primary)',border='var(--color-border-secondary)',color='var(--color-text-primary)'
+          let bg=C.white,border=C.border,color=C.text
           if(done){
             if(i===q.ans){bg='#EAF3DE';border='#3B6D11';color='#27500A'}
             else if(i===sel){bg='#FCEBEB';border='#A32D2D';color='#791F1F'}
           }
           return(
             <div key={i} onClick={()=>{if(done)return;setSel(i);setDone(true);setResults(p=>[...p,i===q.ans])}}
-              style={{border:`0.5px solid ${border}`,borderRadius:'var(--border-radius-md)',padding:'12px 16px',cursor:done?'default':'pointer',fontFamily:'var(--font-mono)',fontSize:14,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>
+              style={{border:`0.5px solid ${border}`,borderRadius:8,padding:'12px 16px',cursor:done?'default':'pointer',fontFamily:'monospace',fontSize:14,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>
               {o}
             </div>
           )
         })}
       </div>
       {done&&<>
-        <div style={{padding:'12px 16px',borderRadius:'var(--border-radius-md)',marginBottom:12,display:'flex',gap:12,alignItems:'flex-start',background:sel===q.ans?'#EAF3DE':'#FCEBEB',border:`0.5px solid ${sel===q.ans?'#C0DD97':'#F7C1C1'}`,color:sel===q.ans?'#27500A':'#791F1F'}}>
+        <div style={{padding:'12px 16px',borderRadius:8,marginBottom:12,display:'flex',gap:12,alignItems:'flex-start',background:sel===q.ans?'#EAF3DE':'#FCEBEB',border:`0.5px solid ${sel===q.ans?'#C0DD97':'#F7C1C1'}`,color:sel===q.ans?'#27500A':'#791F1F'}}>
           <span style={{fontSize:18,flexShrink:0}}>{sel===q.ans?'✓':'✗'}</span>
           <div>
             <div style={{fontWeight:500,marginBottom:4}}>{sel===q.ans?'Poprawnie!':'Błędna odpowiedź.'}</div>
-            <div style={{fontSize:13,lineHeight:1.7,background:'#EEEDFE',borderRadius:'var(--border-radius-md)',padding:'8px 12px',color:'#3C3489'}}>
+            <div style={{fontSize:13,lineHeight:1.7,background:'#EEEDFE',borderRadius:8,padding:'8px 12px',color:'#3C3489'}}>
               <strong>Rozwiązanie:</strong> {q.why}
             </div>
           </div>
         </div>
         <div style={{display:'flex',justifyContent:'flex-end'}}>
           <button onClick={()=>{if(qi<QUIZ.length-1){setQi(q=>q+1);setSel(null);setDone(false)}else setQi(QUIZ.length)}}
-            style={T.btn({background:'#0F1729',color:'#fff',border:'none'})}>
+            style={btn({background:'#0F1729',color:'#fff',border:'none'})}>
             {qi<QUIZ.length-1?'Następne pytanie →':'Zobacz wynik →'}
           </button>
         </div>
@@ -619,26 +645,26 @@ const FISZKI = [
 function FiszkiContent({onComplete}) {
   const [deck,setDeck]=useState(FISZKI.map((f,i)=>({...f,id:i}))),[flipped,setFlipped]=useState(false),[mastered,setMastered]=useState(0)
   if(deck.length===0)return(
-    <div style={{...T.card,textAlign:'center'}}>
+    <div style={{...card,textAlign:'center'}}>
       <div style={{fontSize:48,marginBottom:8}}>🎴</div>
-      <div style={{fontSize:22,fontWeight:500,color:'var(--color-text-primary)',marginBottom:6}}>Wszystkie {FISZKI.length} kart opanowane!</div>
+      <div style={{fontSize:22,fontWeight:500,color:C.text,marginBottom:6}}>Wszystkie {FISZKI.length} kart opanowane!</div>
       <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:16}}>
-        <button onClick={()=>{setDeck(FISZKI.map((f,i)=>({...f,id:i})));setFlipped(false);setMastered(0)}} style={T.btn()}>Powtórz</button>
-        <button onClick={onComplete} style={T.btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Kartkówka →</button>
+        <button onClick={()=>{setDeck(FISZKI.map((f,i)=>({...f,id:i})));setFlipped(false);setMastered(0)}} style={btn()}>Powtórz</button>
+        <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Kartkówka →</button>
       </div>
     </div>
   )
   const c=deck[0],pct=Math.round((mastered/FISZKI.length)*100)
   return(
-    <div style={T.card}>
+    <div style={card}>
       <SecLabel tab={mastered+1} total={FISZKI.length}>Fiszki</SecLabel>
-      <div style={{height:4,background:'var(--color-border-tertiary)',borderRadius:2,marginBottom:12,overflow:'hidden'}}>
+      <div style={{height:4,background:C.border,borderRadius:2,marginBottom:12,overflow:'hidden'}}>
         <div style={{height:'100%',background:'#00B894',width:`${pct}%`,transition:'width .3s',borderRadius:2}}/>
       </div>
-      <div style={{fontSize:12,color:'var(--color-text-tertiary)',textAlign:'center',marginBottom:14}}>
+      <div style={{fontSize:12,color:C.text3,textAlign:'center',marginBottom:14}}>
         {mastered} opanowanych · {deck.length} pozostało · kliknij kartę żeby obrócić
       </div>
-      <div onClick={()=>setFlipped(f=>!f)} style={{cursor:'pointer',minHeight:180,borderRadius:'var(--border-radius-lg)',display:'flex',alignItems:'center',justifyContent:'center',padding:28,textAlign:'center',background:flipped?'var(--color-background-primary)':'#0F1729',border:`0.5px solid ${flipped?'var(--color-border-secondary)':'rgba(255,255,255,.06)'}`,transition:'background .3s',marginBottom:14}}>
+      <div onClick={()=>setFlipped(f=>!f)} style={{cursor:'pointer',minHeight:180,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',padding:28,textAlign:'center',background:flipped?C.white:'#0F1729',border:`0.5px solid ${flipped?C.border:'rgba(255,255,255,.06)'}`,transition:'background .3s',marginBottom:14}}>
         {!flipped
           ?<div>
             <div style={{fontSize:11,color:'rgba(255,255,255,.25)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Fiszka {mastered+1} / {FISZKI.length}</div>
@@ -646,14 +672,14 @@ function FiszkiContent({onComplete}) {
             <div style={{fontSize:11,color:'rgba(255,255,255,.25)',marginTop:14}}>kliknij żeby zobaczyć odpowiedź</div>
           </div>
           :<div>
-            <div style={{fontSize:14,color:'var(--color-text-primary)',lineHeight:1.7,marginBottom:8}}>{c.a}</div>
-            {c.f&&<div style={{fontFamily:'var(--font-mono)',fontSize:13,color:'#F5541E',margin:'10px 0',whiteSpace:'pre-line',lineHeight:1.8}}>{c.f}</div>}
-            {c.note&&<div style={{fontSize:12,color:'var(--color-text-tertiary)',marginTop:6}}>{c.note}</div>}
+            <div style={{fontSize:14,color:C.text,lineHeight:1.7,marginBottom:8}}>{c.a}</div>
+            {c.f&&<div style={{fontFamily:'monospace',fontSize:13,color:'#F5541E',margin:'10px 0',whiteSpace:'pre-line',lineHeight:1.8}}>{c.f}</div>}
+            {c.note&&<div style={{fontSize:12,color:C.text3,marginTop:6}}>{c.note}</div>}
           </div>}
       </div>
       {flipped&&<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-        <button onClick={()=>{const[,...r]=deck;setDeck([...r,deck[0]]);setFlipped(false)}} style={T.btn({background:'#FCEBEB',color:'#791F1F',border:'0.5px solid #F7C1C1',textAlign:'center'})}>Trudna — powtórz</button>
-        <button onClick={()=>{const[,...r]=deck;setDeck(r);setMastered(m=>m+1);setFlipped(false)}} style={T.btn({background:'#EAF3DE',color:'#27500A',border:'0.5px solid #C0DD97',textAlign:'center'})}>Opanowana — następna</button>
+        <button onClick={()=>{const[,...r]=deck;setDeck([...r,deck[0]]);setFlipped(false)}} style={btn({background:'#FCEBEB',color:'#791F1F',border:'0.5px solid #F7C1C1',textAlign:'center'})}>Trudna — powtórz</button>
+        <button onClick={()=>{const[,...r]=deck;setDeck(r);setMastered(m=>m+1);setFlipped(false)}} style={btn({background:'#EAF3DE',color:'#27500A',border:'0.5px solid #C0DD97',textAlign:'center'})}>Opanowana — następna</button>
       </div>}
     </div>
   )
@@ -681,65 +707,65 @@ const KQ = [
 function KartkowkaContent({onComplete}) {
   const [mode,setMode]=useState(null),[ki,setKi]=useState(0),[sel,setSel]=useState(null),[done,setDone]=useState(false),[results,setResults]=useState([]),[hint,setHint]=useState(false)
   if(!mode)return(
-    <div style={T.card}>
+    <div style={card}>
       <SecLabel>Kartkówka — 15 pytań</SecLabel>
-      <p style={{fontSize:14,color:'var(--color-text-secondary)',lineHeight:1.75,marginBottom:20}}>Sprawdź całą wiedzę. Pytania są na poziomie egzaminu ósmoklasisty — w tym zadania z biletami i równania sprzeczne jak na prawdziwym CKE.</p>
+      <p style={{fontSize:14,color:C.text2,lineHeight:1.75,marginBottom:20}}>Sprawdź całą wiedzę. Pytania są na poziomie egzaminu ósmoklasisty — w tym zadania z biletami i równania sprzeczne jak na prawdziwym CKE.</p>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
         {[['trening','Tryb trening','Podpowiedzi dostępne po kliknięciu'],['egzamin','Tryb egzamin','Bez podpowiedzi — jak na prawdziwym egzaminie']].map(([m,t,d])=>(
-          <div key={m} onClick={()=>setMode(m)} style={{border:`0.5px solid ${mode===m?'#0F1729':'var(--color-border-secondary)'}`,borderRadius:'var(--border-radius-lg)',padding:16,cursor:'pointer',background:mode===m?'#0F1729':'var(--color-background-primary)',textAlign:'center',transition:'all .15s'}}>
-            <div style={{fontSize:14,fontWeight:500,color:mode===m?'#fff':'var(--color-text-primary)',marginBottom:4}}>{t}</div>
-            <div style={{fontSize:12,color:mode===m?'rgba(255,255,255,.5)':'var(--color-text-tertiary)',lineHeight:1.5}}>{d}</div>
+          <div key={m} onClick={()=>setMode(m)} style={{border:`0.5px solid ${mode===m?'#0F1729':C.border}`,borderRadius:14,padding:16,cursor:'pointer',background:mode===m?'#0F1729':C.white,textAlign:'center',transition:'all .15s'}}>
+            <div style={{fontSize:14,fontWeight:500,color:mode===m?'#fff':C.text,marginBottom:4}}>{t}</div>
+            <div style={{fontSize:12,color:mode===m?'rgba(255,255,255,.5)':C.text3,lineHeight:1.5}}>{d}</div>
           </div>
         ))}
       </div>
-      <button onClick={()=>mode&&setKi(0)} disabled={!mode} style={T.btn({width:'100%',textAlign:'center',background:mode?'#0F1729':'var(--color-background-secondary)',color:mode?'#fff':'var(--color-text-tertiary)',border:'none',padding:'13px',cursor:mode?'pointer':'not-allowed'})}>Zacznij kartkówkę →</button>
+      <button onClick={()=>mode&&setKi(0)} disabled={!mode} style={btn({width:'100%',textAlign:'center',background:mode?'#0F1729':C.bg,color:mode?'#fff':C.text3,border:'none',padding:'13px',cursor:mode?'pointer':'not-allowed'})}>Zacznij kartkówkę →</button>
     </div>
   )
   if(ki>=KQ.length){
     const ok=results.filter(r=>r).length
     return(
-      <div style={{...T.card,textAlign:'center'}}>
+      <div style={{...card,textAlign:'center'}}>
         <div style={{fontSize:52,marginBottom:8}}>{ok>=12?'🏆':ok>=9?'⭐':'📚'}</div>
-        <div style={{fontSize:24,fontWeight:500,color:'var(--color-text-primary)',marginBottom:6}}>{ok}/{KQ.length} poprawnych</div>
-        <div style={{fontSize:14,color:'var(--color-text-secondary)',marginBottom:20}}>
+        <div style={{fontSize:24,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/{KQ.length} poprawnych</div>
+        <div style={{fontSize:14,color:C.text2,marginBottom:20}}>
           Ocena: {ok>=13?'A — doskonały wynik!':ok>=10?'B — dobry wynik':ok>=7?'C — zadowalający':'D — wróć do teorii'}
         </div>
         <div style={{display:'flex',justifyContent:'center',gap:8}}>
-          <button onClick={()=>{setMode(null);setKi(0);setSel(null);setDone(false);setResults([])}} style={T.btn()}>Powtórz</button>
-          <button onClick={onComplete} style={T.btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Raport Maxa →</button>
+          <button onClick={()=>{setMode(null);setKi(0);setSel(null);setDone(false);setResults([])}} style={btn()}>Powtórz</button>
+          <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Raport Maxa →</button>
         </div>
       </div>
     )
   }
   const q=KQ[ki]
   return(
-    <div style={T.card}>
+    <div style={card}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
         <SecLabel tab={ki+1} total={KQ.length}>Kartkówka</SecLabel>
-        <span style={{fontSize:12,color:'var(--color-text-tertiary)',fontWeight:500,background:'var(--color-background-secondary)',padding:'4px 10px',borderRadius:'var(--border-radius-md)',border:'0.5px solid var(--color-border-tertiary)'}}>{mode==='trening'?'🏋️ Trening':'🎯 Egzamin'}</span>
+        <span style={{fontSize:12,color:C.text3,fontWeight:500,background:C.bg,padding:'4px 10px',borderRadius:8,border:`0.5px solid ${C.border}`}}>{mode==='trening'?'🏋️ Trening':'🎯 Egzamin'}</span>
       </div>
       <div style={{display:'flex',gap:2,marginBottom:16}}>
-        {KQ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<ki?'#00B894':i===ki?'#F5541E':'var(--color-border-tertiary)'}}/>)}
+        {KQ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<ki?'#00B894':i===ki?'#F5541E':C.border}}/>)}
       </div>
-      <div style={{fontSize:15,fontWeight:500,color:'var(--color-text-primary)',marginBottom:12,lineHeight:1.5}}>{q.q}</div>
-      {q.eq&&<div style={{background:'#0F1729',borderRadius:'var(--border-radius-md)',padding:'10px 18px',marginBottom:14,display:'inline-block'}}>
-        <div style={{fontFamily:'var(--font-mono)',fontSize:18,color:'#fff'}}>{q.eq}</div>
+      <div style={{fontSize:15,fontWeight:500,color:C.text,marginBottom:12,lineHeight:1.5}}>{q.q}</div>
+      {q.eq&&<div style={{background:'#0F1729',borderRadius:8,padding:'10px 18px',marginBottom:14,display:'inline-block'}}>
+        <div style={{fontFamily:'monospace',fontSize:18,color:'#fff'}}>{q.eq}</div>
       </div>}
       {mode==='trening'&&!done&&(
-        <div onClick={()=>setHint(h=>!h)} style={{background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:'var(--border-radius-md)',padding:'9px 14px',marginBottom:12,fontSize:12,color:'#633806',cursor:'pointer',lineHeight:1.6}}>
+        <div onClick={()=>setHint(h=>!h)} style={{background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:8,padding:'9px 14px',marginBottom:12,fontSize:12,color:'#633806',cursor:'pointer',lineHeight:1.6}}>
           💡 {hint?q.hint:'Kliknij po wskazówkę'}
         </div>
       )}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
         {q.opts.map((o,i)=>{
-          let bg='var(--color-background-primary)',border='var(--color-border-secondary)',color='var(--color-text-primary)'
+          let bg=C.white,border=C.border,color=C.text
           if(done){
             if(i===q.ans){bg='#EAF3DE';border='#3B6D11';color='#27500A'}
             else if(i===sel){bg='#FCEBEB';border='#A32D2D';color='#791F1F'}
           }
           return(
             <div key={i} onClick={()=>{if(done)return;setSel(i);setDone(true);setHint(false);setResults(p=>[...p,i===q.ans])}}
-              style={{border:`0.5px solid ${border}`,borderRadius:'var(--border-radius-md)',padding:'11px 16px',cursor:done?'default':'pointer',fontFamily:'var(--font-mono)',fontSize:13,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>
+              style={{border:`0.5px solid ${border}`,borderRadius:8,padding:'11px 16px',cursor:done?'default':'pointer',fontFamily:'monospace',fontSize:13,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>
               {o}
             </div>
           )
@@ -747,7 +773,7 @@ function KartkowkaContent({onComplete}) {
       </div>
       {done&&<div style={{display:'flex',justifyContent:'flex-end'}}>
         <button onClick={()=>{if(ki<KQ.length-1){setKi(k=>k+1);setSel(null);setDone(false);setHint(false)}else setKi(KQ.length)}}
-          style={T.btn({background:'#0F1729',color:'#fff',border:'none'})}>
+          style={btn({background:'#0F1729',color:'#fff',border:'none'})}>
           {ki<KQ.length-1?'Dalej →':'Zakończ →'}
         </button>
       </div>}
@@ -804,37 +830,37 @@ const CKE_DATA = [
 function CKEContent({onComplete}) {
   const [rev,setRev]=useState([]),[sol,setSol]=useState(Array(CKE_DATA.length).fill(false))
   return(
-    <div style={T.card}>
+    <div style={card}>
       <SecLabel>Zadania z arkuszy CKE</SecLabel>
-      <p style={{fontSize:13,color:'var(--color-text-secondary)',marginBottom:18,lineHeight:1.65}}>
+      <p style={{fontSize:13,color:C.text2,marginBottom:18,lineHeight:1.65}}>
         Autentyczne zadania z egzaminów ósmoklasisty 2022–2024. Spróbuj rozwiązać samodzielnie — potem sprawdź wzorcowe rozwiązanie ze schematem oceniania CKE.
       </p>
       {CKE_DATA.map((z,i)=>(
-        <div key={i} style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-lg)',border:'0.5px solid var(--color-border-tertiary)',padding:'18px 20px',marginBottom:14}}>
+        <div key={i} style={{background:C.bg,borderRadius:14,border:`0.5px solid ${C.border}`,padding:'18px 20px',marginBottom:14}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
             <span style={{fontSize:12,fontWeight:500,background:'#E6F1FB',color:'#0C447C',padding:'3px 10px',borderRadius:20}}>CKE {z.rok}</span>
-            <span style={{fontSize:12,color:'var(--color-text-tertiary)'}}>Zadanie {z.nr}</span>
+            <span style={{fontSize:12,color:C.text3}}>Zadanie {z.nr}</span>
             <span style={{fontSize:12,fontWeight:500,color:'#633806',background:'#FAEEDA',padding:'3px 9px',borderRadius:20,marginLeft:'auto'}}>{z.pkt} {z.pkt===1?'punkt':'punkty'}</span>
           </div>
-          <div style={{fontSize:15,fontWeight:500,color:'var(--color-text-primary)',lineHeight:1.65,marginBottom:14}}>{z.tresc}</div>
-          <div onClick={()=>setRev(r=>r.includes(i)?r:[...r,i])} style={{background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:'var(--border-radius-md)',padding:'9px 14px',marginBottom:10,fontSize:12,color:'#633806',cursor:'pointer',lineHeight:1.6}}>
+          <div style={{fontSize:15,fontWeight:500,color:C.text,lineHeight:1.65,marginBottom:14}}>{z.tresc}</div>
+          <div onClick={()=>setRev(r=>r.includes(i)?r:[...r,i])} style={{background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:8,padding:'9px 14px',marginBottom:10,fontSize:12,color:'#633806',cursor:'pointer',lineHeight:1.6}}>
             💡 {rev.includes(i)?z.wsk:'Kliknij po wskazówkę'}
           </div>
-          <button onClick={()=>setSol(p=>p.map((v,j)=>j===i?!v:v))} style={T.btn({fontSize:12,padding:'8px 16px'})}>
+          <button onClick={()=>setSol(p=>p.map((v,j)=>j===i?!v:v))} style={btn({fontSize:12,padding:'8px 16px'})}>
             {sol[i]?'▲ Ukryj rozwiązanie':'▼ Pokaż wzorcowe rozwiązanie'}
           </button>
           {sol[i]&&(
-            <div style={{marginTop:14,background:'var(--color-background-primary)',borderRadius:'var(--border-radius-md)',border:'0.5px solid var(--color-border-tertiary)',padding:'16px'}}>
+            <div style={{marginTop:14,background:C.white,borderRadius:8,border:`0.5px solid ${C.border}`,padding:'16px'}}>
               <div style={{display:'flex',flexDirection:'column',gap:0}}>
                 {z.rozw.map((s,j)=>(
-                  <div key={j} style={{display:'flex',gap:10,padding:'8px 0',borderBottom:j<z.rozw.length-1?'0.5px solid var(--color-border-tertiary)':'none'}}>
+                  <div key={j} style={{display:'flex',gap:10,padding:'8px 0',borderBottom:j<z.rozw.length-1?`0.5px solid ${C.border}`:'none'}}>
                     <div style={{width:20,height:20,borderRadius:'50%',background:'#0F1729',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,flexShrink:0}}>{j+1}</div>
-                    <div style={{fontFamily:'var(--font-mono)',fontSize:13,color:'var(--color-text-primary)',lineHeight:1.6}}>{s}</div>
+                    <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:1.6}}>{s}</div>
                   </div>
                 ))}
               </div>
-              <div style={{background:'#EAF3DE',borderRadius:'var(--border-radius-md)',padding:'10px 14px',marginTop:12,fontSize:13,color:'#27500A',fontWeight:500}}>{z.odp}</div>
-              <div style={{background:'#EEEDFE',borderRadius:'var(--border-radius-md)',padding:'10px 14px',marginTop:8,fontSize:12,color:'#3C3489',lineHeight:1.6}}>
+              <div style={{background:'#EAF3DE',borderRadius:8,padding:'10px 14px',marginTop:12,fontSize:13,color:'#27500A',fontWeight:500}}>{z.odp}</div>
+              <div style={{background:'#EEEDFE',borderRadius:8,padding:'10px 14px',marginTop:8,fontSize:12,color:'#3C3489',lineHeight:1.6}}>
                 <strong>Schemat oceniania CKE:</strong> {z.schemat}
               </div>
             </div>
@@ -842,7 +868,7 @@ function CKEContent({onComplete}) {
         </div>
       ))}
       <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
-        <button onClick={onComplete} style={T.btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Ukończyłem zadania CKE →</button>
+        <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Ukończyłem zadania CKE →</button>
       </div>
     </div>
   )
@@ -851,14 +877,14 @@ function CKEContent({onComplete}) {
 // ── RAPORT ────────────────────────────────────────────────────────────────────
 function RaportContent({onComplete}) {
   return(
-    <div style={T.card}>
+    <div style={card}>
       <SecLabel>Raport Maxa</SecLabel>
       <div style={{textAlign:'center',padding:'10px 0 22px'}}>
         <div style={{fontSize:52,marginBottom:8}}>🏆</div>
-        <div style={{fontSize:24,fontWeight:500,color:'var(--color-text-primary)',marginBottom:4}}>Lekcja ukończona</div>
-        <div style={{fontSize:14,color:'var(--color-text-secondary)'}}>Równania liniowe — teoria, ćwiczenia i egzamin CKE za Tobą</div>
+        <div style={{fontSize:24,fontWeight:500,color:C.text,marginBottom:4}}>Lekcja ukończona</div>
+        <div style={{fontSize:14,color:C.text2}}>Równania liniowe — teoria, ćwiczenia i egzamin CKE za Tobą</div>
       </div>
-      <div style={{background:'#0F1729',borderRadius:'var(--border-radius-lg)',padding:'20px',marginBottom:18}}>
+      <div style={{background:'#0F1729',borderRadius:14,padding:'20px',marginBottom:18}}>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
           <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#F5541E,#FF7A4D)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>🤖</div>
           <div>
@@ -883,8 +909,8 @@ function RaportContent({onComplete}) {
         ))}
       </div>
       <div style={{display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
-        <button onClick={onComplete} style={T.btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Oznacz lekcję jako ukończoną</button>
-        <Link href="/kurs/dzial-3" style={{...T.btn(),textDecoration:'none',display:'inline-block'}}>← Dział 3</Link>
+        <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Oznacz lekcję jako ukończoną</button>
+        <Link href="/kurs/dzial-3" style={{...btn(),textDecoration:'none',display:'inline-block'}}>← Dział 3</Link>
       </div>
     </div>
   )
