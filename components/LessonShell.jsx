@@ -101,7 +101,7 @@ function Sidebar({ dzial, lekcja, xp, streak, done, segments, onSegmentClick, ac
         <Link href={dzial.href} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'rgba(255,255,255,0.45)', fontSize: 11, textDecoration: 'none', marginBottom: 10, padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)' }}>
           ← {dzial.title}
         </Link>
-        <Link href="/kurs" style={{ fontFamily: 'Fraunces, serif', fontSize: 18, fontWeight: 900, color: '#fff', textDecoration: 'none', letterSpacing: '-0.5px', display: 'block' }}>
+        <Link href="/" style={{ fontFamily: 'Fraunces, serif', fontSize: 18, fontWeight: 900, color: '#fff', textDecoration: 'none', letterSpacing: '-0.5px', display: 'block' }}>
           Ósem<span style={{ color: C.accent }}>karz</span>
         </Link>
         <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 1 }}>Egzamin ósmoklasisty</div>
