@@ -5,12 +5,16 @@ const dmSans = DM_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-sans',
+  display: 'swap',
+  preload: false,
 })
 
 const fraunces = Fraunces({
   subsets: ['latin'],
   weight: ['700', '900'],
   variable: '--font-display',
+  display: 'swap',
+  preload: false,
 })
 
 export const metadata = {
@@ -21,8 +25,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pl">
-      <body className={`${dmSans.variable} ${fraunces.variable}`}>
+    <html lang="pl" className={`${dmSans.variable} ${fraunces.variable}`}>
+      <body style={{ margin: 0, fontFamily: 'var(--font-sans, DM Sans, sans-serif)' }}>
         {children}
       </body>
     </html>
