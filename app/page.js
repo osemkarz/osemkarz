@@ -70,7 +70,7 @@ function Nav() {
           }}>
             Zaloguj się
           </Link>
-          <Link href="/login" style={{
+          <Link href="/kurs" style={{
             padding: '8px 18px', fontSize: 13, fontWeight: 600,
             background: '#F5541E', color: '#fff', borderRadius: 8,
           }}>
