@@ -19,7 +19,7 @@ const DZIALY = [
   {
     n: '04', name: 'Procenty i zastosowania',
     lekcje: ['Wielokrotne zmiany procentowe', 'Stężenia roztworów', 'Lokaty i odsetki', 'Punkty procentowe', 'Sprawdzian działu'],
-    done: 0, total: 5, status: 'active', href: '/kurs/procenty',
+    done: 0, total: 5, status: 'active', href: '/kurs/dzial-4',
     badge: 'Nowa lekcja!',
   },
   {
