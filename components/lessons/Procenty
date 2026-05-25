@@ -357,7 +357,7 @@ function TeoriaContent({onComplete}) {
         <Step n={3} text="Cena kosiarki po rabacie 10%:" result="450 · 0,90 = 405 zł" />
         <Step n={4} text="Porównanie: 400 zł vs 405 zł:" result="400 < 405 — zabraknie 5 zł ✗" hi />
       </div>
-      <Ans val="Zarobionych pieniędzy NIE wystarczy na kosiarkę" note="Zabraknie 5 zł. Podatek pobierany jest tylko od zysku (odsetek), nie od wpłaconego kapitału!" type="err" />
+      <Ans val="Zarobionych pieniędzy NIE wystarczy na kosiarkę" note="Zabraknie 5 zł. Podatek pobierany jest tylko od zysku (odsetek), nie od wpłaconego kapitału!" type="none" />
 
       <Mistakes items={[
         ['Podatek liczony od całego kapitału (10 000 zł)','Podatek = p% × ODSETKI (zysk), nie od kapitału','Bank nie "kradnie" Twoich oszczędności — pobiera tylko od nowo zarobionych pieniędzy.'],
@@ -585,7 +585,7 @@ const CKE_Z = [
    wsk:'Oznacz przez x pierwotną liczbę uczniów. Liczba chłopców nie zmienia się — zrób równanie.',
    rozw:['Niech x = pierwotna liczba uczniów. Chłopcy: 0,4x','Po dojściu 2 dziewczynek: nowa liczba = x + 2, chłopcy nadal = 0,4x','Równanie: 0,4x = 0,36 · (x + 2)','0,4x = 0,36x + 0,72','0,04x = 0,72 → x = 18'],
    odp:'Klasa liczyła na początku 18 uczniów.',
-   schemat:'Za poprawne równanie z jedną nevědomej: 1 pkt. Za wynik x=18 z uzasadnieniem: 2 pkt.'},
+   schemat:'Za poprawne równanie z jedną niewiadomej: 1 pkt. Za wynik x=18 z uzasadnieniem: 2 pkt.'},
 ]
 
 function CKEContent({onComplete}) {
