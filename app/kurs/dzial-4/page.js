@@ -71,7 +71,7 @@ export default function Dzial4Page() {
           <span style={{ fontSize:13,color:'#fff',fontWeight:500 }}>Dział 4 — Procenty i statystyka</span>
           <div style={{ marginLeft:'auto',display:'flex',alignItems:'center',gap:10 }}>
             <button onClick={() => setShowReset(true)} style={{ fontSize:12,color:'rgba(255,255,255,0.4)',background:'none',border:'1px solid rgba(255,255,255,0.1)',borderRadius:7,padding:'5px 10px',cursor:'pointer',fontFamily:'inherit' }}>↺ Resetuj</button>
-            <Link href="/kurs" style={{ fontFamily:'Fraunces,serif',fontSize:18,fontWeight:900,color:'#fff',textDecoration:'none' }}>Ósem<span style={{ color:C.accent }}>karz</span></Link>
+            <Link href="/" style={{ fontFamily:'Fraunces,serif',fontSize:18,fontWeight:900,color:'#fff',textDecoration:'none' }}>Ósem<span style={{ color:C.accent }}>karz</span></Link>
           </div>
         </div>
       </nav>
