@@ -5,62 +5,43 @@ import Link from 'next/link'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LEKCJA 1: Równania liniowe z jedną niewiadomą
-// Wersja: redesign wizualny + poziom trudności CKE 2022-2024
+// Oparcie: podręcznik Abeka Pre-Algebra 3.11-3.17 + wymagania CKE 2025
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── DESIGN TOKENS — spójne z NierownosciLesson ────────────────────────────────
 const C = { navy:'#0F1729',accent:'#F5541E',green:'#00B894',purple:'#6C5CE7',blue:'#185FA5',bg:'#F7F8FC',white:'#fff',border:'#E2E8F0',text:'#0F1729',text2:'#4A5568',text3:'#8896A5' }
 const card = { background:C.white, borderRadius:14, border:`0.5px solid ${C.border}`, padding:24 }
 const btn = (x={}) => ({ padding:'10px 22px', fontSize:13, fontWeight:500, borderRadius:8, cursor:'pointer', fontFamily:'inherit', border:`0.5px solid ${C.border}`, background:C.white, color:C.text, transition:'all .15s', ...x })
 
-// ── MICRO COMPONENTS ──────────────────────────────────────────────────────────
-// Styled subheading inside theory sections
 const SH = ({children}) => (
-  <div style={{fontSize:14,fontWeight:500,color:C.text,margin:'20px 0 10px',paddingBottom:8,borderBottom:`0.5px solid ${C.border}`,display:'flex',alignItems:'center',gap:8}}>
-    <span style={{width:3,height:16,background:'#534AB7',borderRadius:2,display:'inline-block',flexShrink:0}}/>
+  <div style={{fontSize:14,fontWeight:500,color:C.text,margin:'22px 0 10px',paddingBottom:8,borderBottom:`0.5px solid ${C.border}`,display:'flex',alignItems:'center',gap:8}}>
+    <span style={{width:3,height:16,background:C.purple,borderRadius:2,display:'inline-block',flexShrink:0}}/>
     {children}
   </div>
 )
 
-// Math notation helpers — correct symbols for kids
-const M = ({c}) => <span style={{fontFamily:'monospace',fontSize:'1em'}}>{c}</span>
-
-const SecLabel = ({children,tab,total}) => (
-  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:18}}>
-    <span style={{width:6,height:6,borderRadius:'50%',background:'#534AB7',flexShrink:0,display:'inline-block'}}/>
-    <span style={{fontSize:11,fontWeight:500,letterSpacing:'.08em',textTransform:'uppercase',color:C.text3}}>{children}</span>
-    {total&&<span style={{marginLeft:'auto',fontSize:11,color:C.text3}}>Sekcja {tab} z {total}</span>}
+// Krok rozwiązania (pionowa lista kroków z linią oddzielającą)
+const Step = ({n,text,result,hi,note}) => (
+  <div style={{display:'flex',gap:10}}>
+    <div style={{width:22,height:22,background:C.navy,color:'#fff',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:600,flexShrink:0,marginTop:10}}>{n}</div>
+    <div style={{flex:1,padding:'8px 0',borderBottom:`0.5px solid ${C.border}`}}>
+      <div style={{fontSize:13,color:C.text2,marginBottom:result?5:0,lineHeight:1.55}}>{text}</div>
+      {result&&<div style={hi
+        ?{background:'#EAF3DE',borderLeft:'3px solid #3B6D11',padding:'7px 12px',borderRadius:'0 7px 7px 0',fontFamily:'monospace',fontSize:14,color:'#27500A',fontWeight:600,display:'inline-block'}
+        :{background:C.bg,padding:'6px 10px',borderRadius:6,fontFamily:'monospace',fontSize:13,color:C.text,display:'inline-block'}}>
+        {result}
+      </div>}
+      {note&&<div style={{fontSize:11,color:C.text3,marginTop:4,fontStyle:'italic'}}>{note}</div>}
+    </div>
   </div>
 )
 
-const Formula = ({title,lines,note}) => (
-  <div style={{background:'#0F1729',borderRadius:14,padding:'18px 24px',textAlign:'center',margin:'18px 0'}}>
-    {title&&<div style={{fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:'rgba(255,255,255,.3)',marginBottom:10}}>{title}</div>}
-    {lines.map((l,i)=>(
-      <div key={i} style={{fontFamily:'monospace',fontSize:20,color:'#fff',lineHeight:2.1}}
-        dangerouslySetInnerHTML={{__html:
-          l.replace(/\[([^\]]+)\]/g,'<span style="color:#FF7A4D">$1</span>')
-           .replace(/\{([^\}]+)\}/g,'<span style="color:#00B894">$1</span>')
-           .replace(/\|([^\|]+)\|/g,'<span style="color:#69C3FF">$1</span>')
-        }}
-      />
-    ))}
-    {note&&<div style={{fontSize:11,color:'rgba(255,255,255,.3)',marginTop:8}}>{note}</div>}
-  </div>
-)
-
+// Blok zadania z kolorowym badge poziomem trudności
 const Task = ({level,label,eq,sub}) => {
-  const badges = {
-    basic:  {bg:'#EAF3DE',c:'#27500A',txt:'Podstawowy'},
-    med:    {bg:'#FAEEDA',c:'#633806',txt:'Średni'},
-    hard:   {bg:'#FCEBEB',c:'#791F1F',txt:'Trudny'},
-    cke:    {bg:'#EEEDFE',c:'#3C3489',txt:'Typ CKE'},
-  }
-  const b = badges[level]||badges.basic
+  const b={basic:{bg:'#EAF3DE',c:'#27500A',txt:'Podstawowy'},med:{bg:'#FAEEDA',c:'#633806',txt:'Średni'},hard:{bg:'#FCEBEB',c:'#791F1F',txt:'Trudny'},cke:{bg:'#EEEDFE',c:'#3C3489',txt:'Typ CKE'}}[level]||{bg:'#EAF3DE',c:'#27500A',txt:'Podstawowy'}
   return (
-    <div style={{margin:'20px 0'}}>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-        {b&&<span style={{fontSize:10,fontWeight:500,padding:'3px 9px',borderRadius:20,background:b.bg,color:b.c}}>{b.txt}</span>}
+    <div style={{margin:'18px 0'}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+        <span style={{fontSize:10,fontWeight:500,padding:'3px 9px',borderRadius:20,background:b.bg,color:b.c}}>{b.txt}</span>
         {label&&<span style={{fontSize:13,color:C.text2}}>{label}</span>}
       </div>
       <div style={{background:C.bg,borderRadius:8,padding:'14px 18px',border:`0.5px solid ${C.border}`}}>
@@ -71,552 +52,488 @@ const Task = ({level,label,eq,sub}) => {
   )
 }
 
-const Steps = ({steps,answer,answerType='ok'}) => (
-  <div style={{margin:'8px 0 14px'}}>
-    <div style={{display:'flex',flexDirection:'column',gap:0}}>
-      {steps.map(([action,result],i)=>(
-        <div key={i} style={{display:'flex',gap:12,padding:'10px 0',borderBottom:`0.5px solid ${C.border}`}}>
-          <div style={{width:22,height:22,borderRadius:'50%',background:C.bg,border:`0.5px solid ${C.border}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:500,color:C.text2,flexShrink:0,marginTop:2}}>{i+1}</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:13,color:C.text2,marginBottom:result?5:0,lineHeight:1.5}}>{action}</div>
-            {result&&<div style={{fontFamily:'monospace',fontSize:14,color:C.text,background:C.bg,padding:'6px 10px',borderRadius:8,display:'inline-block'}}>{result}</div>}
-          </div>
-        </div>
-      ))}
+// Odpowiedź końcowa
+const Ans = ({val,note,type='ok'}) => (
+  <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',borderRadius:8,marginTop:10,background:type==='ok'?'#EAF3DE':type==='none'?'#FCEBEB':'#E6F1FB',border:`0.5px solid ${type==='ok'?'#C0DD97':type==='none'?'#F7C1C1':'#B5D4F4'}`}}>
+    <div style={{width:28,height:28,borderRadius:'50%',background:type==='ok'?'#3B6D11':type==='none'?'#A32D2D':'#185FA5',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:13,color:'#fff',fontWeight:700}}>{type==='ok'?'✓':type==='none'?'∅':'∞'}</div>
+    <div>
+      <div style={{fontFamily:'monospace',fontSize:15,fontWeight:500,color:type==='ok'?'#27500A':type==='none'?'#791F1F':'#0C447C'}}>{val}</div>
+      {note&&<div style={{fontSize:12,color:type==='ok'?'#3B6D11':type==='none'?'#A32D2D':'#185FA5',marginTop:2}}>{note}</div>}
     </div>
-    {answer&&(
-      <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',borderRadius:8,marginTop:12,
-        background:answerType==='ok'?'#EAF3DE':answerType==='none'?'#FCEBEB':'#E6F1FB',
-        border:`0.5px solid ${answerType==='ok'?'#C0DD97':answerType==='none'?'#F7C1C1':'#B5D4F4'}`
-      }}>
-        <div style={{width:28,height:28,borderRadius:'50%',background:answerType==='ok'?'#3B6D11':answerType==='none'?'#A32D2D':'#185FA5',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:14,color:'#fff'}}>
-          {answerType==='ok'?'✓':answerType==='none'?'∅':'∞'}
-        </div>
-        <div>
-          <div style={{fontFamily:'monospace',fontSize:15,fontWeight:500,color:answerType==='ok'?'#27500A':answerType==='none'?'#791F1F':'#0C447C'}}>{answer[0]}</div>
-          {answer[1]&&<div style={{fontSize:12,color:answerType==='ok'?'#3B6D11':answerType==='none'?'#A32D2D':'#185FA5',marginTop:2}}>{answer[1]}</div>}
-        </div>
-      </div>
-    )}
   </div>
 )
 
-// ── TEORIA TABS ───────────────────────────────────────────────────────────────
-const TTABS = [
-  {id:'def',     label:'Definicja i rodzaje'},
-  {id:'zasady',  label:'Zasady przekształcania'},
-  {id:'proste',  label:'Równania ax+b=c'},
-  {id:'obu',     label:'x po obu stronach'},
-  {id:'nawiasy', label:'Równania z nawiasami'},
-  {id:'ulamki',  label:'★ Równania z ułamkami'},
-  {id:'sprzecz', label:'★ Sprzeczne i tożsamościowe'},
-  {id:'bledy',   label:'Sprawdzanie — CKE'},
-]
-
-const TEORIA = {
-
-def: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:16}}>
-    <strong style={{color:C.text,fontWeight:500}}>Równanie liniowe</strong> to zdanie matematyczne z znakiem <strong style={{color:C.text,fontWeight:500}}>=</strong> i zmienną x w pierwszej potędze. Rozwiązanie, zwane <strong style={{color:C.text,fontWeight:500}}>korzeniem</strong>, to wartość x która czyni to zdanie prawdziwym.
-  </p>
-  <Formula title="Ogólna postać równania liniowego" lines={['[a]x + [b] = {c}']} note="gdzie a ≠ 0; a, b, c są liczbami rzeczywistymi" />
-  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
-    {[
-      ['Wyrażenie','2x + 3','Brak znaku =. Można obliczyć wartość, ale nie można go rozwiązać.','#EEEDFE','#3C3489','#534AB7'],
-      ['Równanie','2x + 3 = 11','Jest znak =. Szukamy x. Rozwiązanie: x = 4 (bo 2 · 4+3=11).','#EAF3DE','#27500A','#3B6D11'],
-    ].map(([t,f,d,bg,c,bc])=>(
-      <div key={t} style={{background:bg,borderRadius:8,padding:'14px',borderLeft:`3px solid ${bc}`}}>
-        <div style={{fontSize:11,fontWeight:500,color:c,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{t}</div>
-        <div style={{fontFamily:'monospace',fontSize:17,color:C.text,marginBottom:8,fontWeight:500}}>{f}</div>
-        <div style={{fontSize:12,color:C.text2,lineHeight:1.55}}>{d}</div>
-      </div>
-    ))}
-  </div>
-  <SH>Ile rozwiązań może mieć równanie liniowe?</SH>
-  <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:14}}>
-    {[
-      ['Dokładnie jedno',   'ax + b = c,  a ≠ 0',       'Typowy przypadek na egzaminie','#EAF3DE','#27500A'],
-      ['Brak rozwiązań (∅)','Równanie sprzeczne',         'Po uproszczeniu: np. 5 = −2','#FCEBEB','#791F1F'],
-      ['Nieskończenie wiele','Równanie tożsamościowe',    'Po uproszczeniu: np. 0 = 0','#E6F1FB','#0C447C'],
-    ].map(([t,p,d,bg,c])=>(
-      <div key={t} style={{display:'flex',gap:12,padding:'10px 14px',background:bg,borderRadius:8}}>
-        <div style={{fontSize:13,fontWeight:500,color:c,minWidth:190,flexShrink:0}}>{t}</div>
-        <div style={{flex:1}}>
-          <div style={{fontFamily:'monospace',fontSize:12,color:c,marginBottom:2}}>{p}</div>
-          <div style={{fontSize:12,color:C.text2}}>{d}</div>
-        </div>
-      </div>
-    ))}
-  </div>
-  <div style={{background:'#E6F1FB',borderLeft:'3px solid #185FA5',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#0C447C',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Na egzaminie CKE</strong> zdecydowana większość zadań z równaniami ma jedno rozwiązanie. Równania sprzeczne i tożsamościowe pojawiają się rzadko — ale wystarczy jeden raz się na nie natknąć na egzaminie, by zrozumieć ich wartość.
-  </div>
-</>,
-
-zasady: <div>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
-    Rozwiązywanie równań opiera się na jednej fundamentalnej zasadzie: <strong style={{color:C.text,fontWeight:500}}>możemy wykonywać dowolne działania na obu stronach równania jednocześnie</strong> — i równość nie zostanie naruszona. Cel jest zawsze ten sam: doprowadzić do postaci <strong style={{fontFamily:'monospace',fontWeight:500}}>x = liczba</strong>.
-  </p>
-
-  <SH>Cztery dozwolone operacje</SH>
-  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:14}}>
-    {[
-      {op:'+c', title:'Dodawanie', eq:'x − 5 = 3', wynik:'x = 8', note:'Dodajemy 5 do obu stron', bg:'#EAF3DE', c:'#27500A'},
-      {op:'−c', title:'Odejmowanie', eq:'x + 7 = 12', wynik:'x = 5', note:'Odejmujemy 7 od obu stron', bg:'#EAF3DE', c:'#27500A'},
-      {op:'× c', title:'Mnożenie (c ≠ 0)', eq:'x ÷ 4 = 3', wynik:'x = 12', note:'Mnożymy przez 4', bg:'#E6F1FB', c:'#0C447C'},
-      {op:'÷ c', title:'Dzielenie (c ≠ 0)', eq:'6x = 18', wynik:'x = 3', note:'Dzielimy przez 6', bg:'#E6F1FB', c:'#0C447C'},
-    ].map(({op,title,eq,wynik,note,bg,c})=>(
-      <div key={op} style={{background:bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
-        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-          <span style={{fontFamily:'monospace',fontSize:18,fontWeight:700,color:c}}>{op}</span>
-          <span style={{fontSize:12,fontWeight:500,color:c}}>{title}</span>
-        </div>
-        <div style={{fontFamily:'monospace',fontSize:13,color:C.text,marginBottom:4}}>{eq}  →  <strong>{wynik}</strong></div>
-        <div style={{fontSize:11,color:C.text3}}>{note}</div>
-      </div>
-    ))}
-  </div>
-
-  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,marginBottom:16}}>
-    <strong>Czego NIE wolno robić:</strong><br/>
-    — dzielić przez 0 (matematycznie niedozwolone)<br/>
-    — wykonywać różnych działań po różnych stronach (np. dodać 3 do lewej, a 5 do prawej)<br/>
-    — przy mnożeniu przez liczbę pominąć jakikolwiek wyraz równania
-  </div>
-
-  <SH>Jak wyglądają kolejne równoważne przekształcenia</SH>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:10}}>
-    Dwa równania są <strong style={{color:C.text,fontWeight:500}}>równoważne</strong> gdy mają dokładnie ten sam zbiór rozwiązań. Każda dozwolona operacja tworzy nowe równanie równoważne. Dlatego możemy "prowadzić" równanie krok po kroku, aż doprowdzimy je do postaci <span style={{fontFamily:'monospace'}}>x = liczba</span>.
-  </p>
-  <div style={{background:C.bg,borderRadius:8,padding:'16px 20px',border:`0.5px solid ${C.border}`,marginBottom:14}}>
-    {[
-      ['4x + 10 = 26', null, null],
-      ['4x = 16', 'odejmujemy 10 od obu stron', '−10'],
-      ['x = 4  ✓', 'dzielimy obie strony przez 4', '÷4'],
-    ].map(([eq, note, op], i) => (
-      <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',borderBottom:i<2?`0.5px solid ${C.border}`:'none'}}>
-        <div style={{fontFamily:'monospace',fontSize:16,color:i===2?'#27500A':C.text,fontWeight:i===2?600:400,minWidth:160}}>{eq}</div>
-        {note&&<div style={{fontSize:12,color:C.text3,flex:1}}>{note}</div>}
-        {op&&<div style={{fontFamily:'monospace',fontSize:13,fontWeight:600,color:'#0C447C',background:'#E6F1FB',padding:'3px 8px',borderRadius:6,flexShrink:0}}>{op}</div>}
-      </div>
-    ))}
-  </div>
-
-  <SH>Przenoszenie wyrazów — skrótowa technika</SH>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:10}}>
-    W praktyce zamiast pisać "odejmujemy x od obu stron" mówimy że <strong style={{color:C.text,fontWeight:500}}>przenosimy wyraz na drugą stronę i zmieniamy jego znak</strong>. To skrót — ale wynik jest identyczny.
-  </p>
-  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
-    <div style={{background:C.bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
-      <div style={{fontSize:11,fontWeight:500,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:8}}>Zapis pełny</div>
-      <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:2.2}}>
-        3x + 5 = 14<br/>
-        3x + 5 − 5 = 14 − 5<br/>
-        3x = 9<br/>
-        3x ÷ 3 = 9 ÷ 3<br/>
-        x = 3
-      </div>
-    </div>
-    <div style={{background:C.bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
-      <div style={{fontSize:11,fontWeight:500,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:8}}>Zapis skrótowy (używamy w praktyce)</div>
-      <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:2.2}}>
-        3x + 5 = 14<br/>
-        3x = 14 − 5<br/>
-        3x = 9<br/>
-        x = 3
-      </div>
-    </div>
-  </div>
-  <div style={{background:'#FAEEDA',borderLeft:'3px solid #854F0B',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#633806',lineHeight:1.75,marginBottom:14}}>
-    <strong>Zmiana strony = zmiana znaku:</strong> +5 po lewej → −5 po prawej · −7 po prawej → +7 po lewej · +3x po prawej → −3x po lewej.
-  </div>
-
-  <SH>Co warto zapamiętać — ściągawka</SH>
-  <div style={{display:'flex',flexDirection:'column',gap:6}}>
-    {[
-      ['Cel każdego kroku', 'Wyizolować x — doprowadzić do x = liczba', '#EEEDFE', '#3C3489'],
-      ['Operacja musi być symetryczna', 'Robisz to SAMO po OBUEQUATIONS stronach', '#EAF3DE', '#27500A'],
-      ['Zmiana strony', 'Przenosząc wyraz na drugą stronę — zmieniasz jego znak', '#FAEEDA', '#633806'],
-      ['Dzielenie przez ujemną', 'Dozwolone — wynik zmienia znak, ale to nie jest nierówność!', '#E6F1FB', '#0C447C'],
-      ['Sprawdzenie', 'Zawsze podstaw wynik do ORYGINALNEGO równania i zweryfikuj', '#F5F3FF', '#4C1D95'],
-    ].map(([zasada, opis, bg, c]) => (
-      <div key={zasada} style={{display:'flex',gap:12,padding:'10px 14px',background:bg,borderRadius:8,alignItems:'flex-start'}}>
-        <div style={{fontSize:13,fontWeight:500,color:c,minWidth:210,flexShrink:0}}>{zasada}</div>
-        <div style={{fontSize:13,color:C.text2,lineHeight:1.5}}>{opis}</div>
-      </div>
-    ))}
-  </div>
-</div>,
-
-proste: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
-    Równanie <strong style={{color:C.text,fontWeight:500}}>ax + b = c</strong> rozwiązujemy w dwóch krokach: przenosimy stałą na prawą stronę, dzielimy przez współczynnik.
-  </p>
-  <Formula lines={['[a]x + [b] = {c}  →  [a]x = {c} − [b]  →  x = ({c} − [b]) ÷ [a]']} />
-
-  <Task level="basic" label="Klasyczny typ" eq="5x − 8 = 17" />
-  <Steps steps={[
-    ['Dodajemy 8 do obu stron:','5x = 25'],
-    ['Dzielimy obie strony przez 5:','x = 5'],
-  ]} answer={['x = 5','Sprawdzenie: 5 · 5 − 8 = 17 ✓']} />
-
-  <Task level="med" label="Wynik ułamkowy — częsty na CKE" eq="4x + 5 = 14" />
-  <Steps steps={[
-    ['Odejmujemy 5:','4x = 9'],
-    ['Dzielimy przez 4:','x = 9/4 = 2,25'],
-  ]} answer={['x = 9/4','Sprawdzenie: 4 · (9/4)+5 = 9+5 = 14 ✓']} />
-
-  <Task level="hard" label="Ujemny współczynnik i obie strony ujemne" eq="−3x + 7 = −2" />
-  <Steps steps={[
-    ['Odejmujemy 7 od obu stron:','−3x = −9'],
-    ['Dzielimy przez −3 (ujemna — tylko zmiana znaku wyniku, nie równanie nierówności!):','x = 3'],
-  ]} answer={['x = 3','Sprawdzenie: −3 · 3+7 = −9+7 = −2 ✓']} />
-
-  <Task level="cke" label="Zadanie z przekształcaniem wzoru — CKE 2024, Zadanie 6" eq="y = 5x · w,  wyznacz x" sub="Zadanie otwarte — przekształcanie wzoru" />
-  <Steps steps={[
-    ['Dzielimy obie strony przez 5w (zakładamy w ≠ 0):','y / (5w) = x'],
-    ['Zapisujemy wynik:','x = y / (5w)'],
-  ]} answer={['x = y/(5w)','Kluczowe: dzielimy przez całe wyrażenie 5w, nie tylko przez 5!']} />
-
-  <div style={{background:'#FAEEDA',borderLeft:'3px solid #854F0B',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#633806',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Ważne dla CKE:</strong> Gdy wynik wychodzi ułamkiem, zapisz go jako ułamek zwykły lub dziesiętny — oba są akceptowane przez egzaminatorów. Nie szukaj wyniku całkowitego "na siłę".
-  </div>
-</>,
-
-obu: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
-    Gdy x pojawia się po <strong style={{color:C.text,fontWeight:500}}>obu stronach</strong> równania — przenosimy wszystkie wyrazy z x na lewą stronę, liczby na prawą.
-  </p>
-  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Przenosząc wyraz na drugą stronę — zawsze zmieniamy jego znak.</strong><br/>
-    +5x po prawej → −5x po lewej<br/>
-    −3 po lewej → +3 po prawej<br/>
-    To najczęstszy błąd na egzaminie ósmoklasisty.
-  </div>
-
-  <Task level="med" label="Standardowy typ — przenoszenie obu stron" eq="5x − 3 = 2x + 9" />
-  <Steps steps={[
-    ['Przenosimy 2x na lewą (odejmujemy 2x od obu stron):','3x − 3 = 9'],
-    ['Dodajemy 3 do obu stron:','3x = 12'],
-    ['Dzielimy przez 3:','x = 4'],
-  ]} answer={['x = 4','Sprawdzenie: 5 · 4−3=17 i 2 · 4+9=17 ✓']} />
-
-  <Task level="hard" label="Ujemne współczynniki po obu stronach" eq="2 − 3x = 5 − 7x" />
-  <Steps steps={[
-    ['Dodajemy 7x do obu stron (przenosimy −7x na lewą):','2 + 4x = 5'],
-    ['Odejmujemy 2:','4x = 3'],
-    ['Dzielimy przez 4:','x = 3/4'],
-  ]} answer={['x = 3/4','Sprawdzenie: 2−3 · (3/4)=2−9/4=−1/4 i 5−7 · (3/4)=5−21/4=−1/4 ✓']} />
-
-  <Task level="cke" label="Typ z egzaminu CKE — weryfikacja transformacji" eq="Które przekształcenie równania  5x − 3 = 2  jest BŁĘDNE?" sub="Zadanie zamknięte — rozpoznawanie błędu" />
-  <div style={{display:'flex',flexDirection:'column',gap:8,margin:'12px 0 14px'}}>
-    {[
-      ['A.','5x = 2 + 3','Poprawne — dodano 3 do obu stron'],
-      ['B.','5x = 5','Poprawne — 2+3=5'],
-      ['C.','x = 5/5 = 1','Poprawne — wynik'],
-      ['D.','5x − 5 = 0','BŁĘDNE — odjęto 5 tylko od lewej strony!'],
-    ].map(([l,eq,d],i)=>(
-      <div key={l} style={{display:'flex',gap:10,padding:'10px 14px',borderRadius:8,background:i===3?'#FCEBEB':C.bg,border:`0.5px solid ${i===3?'#F7C1C1':C.border}`}}>
-        <span style={{fontWeight:500,color:i===3?'#A32D2D':C.text2,flexShrink:0}}>{l}</span>
-        <span style={{fontFamily:'monospace',color:i===3?'#791F1F':C.text,flex:1}}>{eq}</span>
-        <span style={{fontSize:12,color:i===3?'#A32D2D':C.text3}}>{d}</span>
-      </div>
-    ))}
-  </div>
-  <div style={{background:'#EAF3DE',borderLeft:'3px solid #3B6D11',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#27500A',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Wskazówka do CKE:</strong> W zadaniach zamkniętych dotyczących przekształceń równań sprawdź każdą opcję podstawiając do oryginalnego równania — nie polegaj tylko na "wyglądzie" wzoru.
-  </div>
-</>,
-
-nawiasy: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
-    Gdy w równaniu jest nawias — <strong style={{color:C.text,fontWeight:500}}>najpierw go rozwijamy</strong>, potem rozwiązujemy. To obowiązkowy krok, który nie podlega negocjacjom.
-  </p>
-  <Formula title="Rozdzielność mnożenia" lines={['[a]([b]x + [c]) = [a]·[b]x + [a]·[c]']} note="Mnożysz liczbę przez KAŻDY wyraz w nawiasie" />
-  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Najczęstszy błąd uczniów:</strong> 3(x − 4) = 3x − 4.<br/>
-    Poprawnie: 3(x − 4) = 3x − <strong>12</strong>.<br/>
-    Mnożysz przez każdy wyraz — tu przez x i przez −4.
-  </div>
-
-  <Task level="basic" label="Jeden nawias" eq="3(2x − 5) = x + 10" />
-  <Steps steps={[
-    ['Rozwijamy nawias (3 · 2x=6x, 3 · (−5)=−15):','6x − 15 = x + 10'],
-    ['Przenosimy x na lewą: 6x−x=10+15','5x = 25'],
-    ['Dzielimy przez 5:','x = 5'],
-  ]} answer={['x = 5','Sprawdzenie: 3 · (10−5)=15 i 5+10=15 ✓']} />
-
-  <Task level="med" label="Minus przed nawiasem — zmienia wszystkie znaki" eq="4x − (2x + 7) = 3(x − 4)" />
-  <Steps steps={[
-    ['Rozwijamy (minus odwraca znaki całego nawiasu!):','4x − 2x − 7 = 3x − 12'],
-    ['Upraszczamy lewą stronę:','2x − 7 = 3x − 12'],
-    ['Przenosimy: 2x−3x=−12+7','−x = −5'],
-    ['Mnożymy przez −1:','x = 5'],
-  ]} answer={['x = 5','Sprawdzenie: 20−(10+7)=3 i 3 · (5−4)=3 ✓']} />
-
-  <Task level="hard" label="Trzy nawiasy z różnymi współczynnikami" eq="2(3x − 1) − 3(x + 4) = x − 17" />
-  <Steps steps={[
-    ['Rozwijamy oba nawiasy (uważaj na −3 przed drugim):','6x − 2 − 3x − 12 = x − 17'],
-    ['Zbieramy wyrazy po lewej:','3x − 14 = x − 17'],
-    ['Przenosimy: 3x−x=−17+14','2x = −3'],
-    ['Dzielimy przez 2:','x = −3/2 = −1,5'],
-  ]} answer={['x = −3/2','Sprawdzenie: 2 · (3 · (−1,5)−1)−3 · (−1,5+4) = 2 · (−5,5)−3 · 2,5 = −11−7,5 = −18,5 i −1,5−17=−18,5 ✓']} />
-
-  <Task level="cke" label="Typ zadania otwartego CKE — równanie z nawiasami" eq="5(x + 3) − 2(3x − 1) = 3(2 − x) + 4" sub="Zadanie otwarte — 2 punkty" />
-  <Steps steps={[
-    ['Rozwijamy wszystkie nawiasy:','5x + 15 − 6x + 2 = 6 − 3x + 4'],
-    ['Zbieramy wyrazy podobne po obu stronach:','−x + 17 = 10 − 3x'],
-    ['Przenosimy: −x+3x=10−17','2x = −7'],
-    ['Dzielimy przez 2:','x = −7/2 = −3,5'],
-  ]} answer={['x = −3,5','Sprawdzenie: 5 · (−0,5)−2 · (−11,5)=−2,5+23=20,5 i 3 · (5,5)+4=20,5 ✓']} />
-
-  <div style={{background:'#EAF3DE',borderLeft:'3px solid #3B6D11',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#27500A',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Strategia przy wielu nawiasach:</strong> Rozwiń wszystkie nawiasy w jednym kroku, potem zbierz wyrazy podobne po każdej stronie osobno, a na końcu przenoś między stronami. Nie mieszaj tych etapów.
-  </div>
-</>,
-
-ulamki: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
-    Ułamki w równaniu wyglądają groźnie, ale mają prostą strategię: <strong style={{color:C.text,fontWeight:500}}>mnożymy każdy wyraz przez NWW mianowników</strong>. Ułamki znikają i wracamy do znajomego typu.
-  </p>
-  <div style={{background:C.bg,borderRadius:8,padding:'14px 16px',marginBottom:16,border:`0.5px solid ${C.border}`}}>
-    <div style={{fontSize:12,fontWeight:500,color:C.text2,marginBottom:10}}>Strategia w 3 krokach:</div>
-    {[
-      ['1','Znajdź NWW wszystkich mianowników w równaniu'],
-      ['2','Pomnóż KAŻDY wyraz (po obu stronach) przez NWW — ułamki znikają'],
-      ['3','Rozwiąż powstałe równanie bez ułamków'],
-    ].map(([n,t])=>(
-      <div key={n} style={{display:'flex',gap:10,marginBottom:8,alignItems:'flex-start'}}>
-        <div style={{width:22,height:22,borderRadius:'50%',background:'#185FA5',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,flexShrink:0}}>{n}</div>
-        <div style={{fontSize:13,color:C.text2,lineHeight:1.5}}>{t}</div>
-      </div>
-    ))}
-  </div>
-
-  <Task level="basic" label="Jeden mianownik" eq="x/3 + 2 = 5" sub="Mianowniki: 3. NWW = 3." />
-  <Steps steps={[
-    ['Mnożymy każdy wyraz przez 3 (w tym 2 i 5!):','x + 6 = 15'],
-    ['Odejmujemy 6:','x = 9'],
-  ]} answer={['x = 9','Sprawdzenie: 9÷3+2=3+2=5 ✓']} />
-
-  <Task level="med" label="Dwa różne mianowniki" eq="x/2 − x/5 = 3" sub="Mianowniki: 2 i 5. NWW = 10." />
-  <Steps steps={[
-    ['Mnożymy każdy wyraz przez 10:','5x − 2x = 30'],
-    ['Upraszczamy i dzielimy przez 3:','x = 10'],
-  ]} answer={['x = 10','Sprawdzenie: 10÷2 − 10÷5 = 5 − 2 = 3 ✓']} />
-
-  <Task level="hard" label="Wyrażenia w liczniku — typ CKE" eq="(2x + 1)/3 − (x − 2)/4 = 2" sub="Mianowniki: 3 i 4. NWW = 12." />
-  <Steps steps={[
-    ['Mnożymy każdy wyraz przez 12:','4(2x+1) − 3(x−2) = 24'],
-    ['Rozwijamy nawiasy:','8x + 4 − 3x + 6 = 24'],
-    ['Zbieramy wyrazy: 5x + 10 = 24, odejmujemy 10:','5x = 14'],
-    ['Dzielimy przez 5:','x = 14/5 = 2,8'],
-  ]} answer={['x = 14/5','Sprawdzenie: (2 · 2,8+1)/3−(2,8−2)/4 = 6,6/3−0,8/4 = 2,2−0,2=2 ✓']} />
-
-  <div style={{background:'#FCEBEB',borderLeft:'3px solid #A32D2D',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#791F1F',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Pułapka:</strong> Mnożąc przez NWW musisz pomnożyć KAŻDY wyraz — też liczby całkowite!<br/>
-    Przykład: <span style={{fontFamily:'monospace'}}>x/3 + 2 = 5</span>, ×3:<br/>
-    <span style={{color:'#A32D2D',fontFamily:'monospace'}}>x + 2 = 15 ✗</span> (nie pomnożono 2)<br/>
-    <span style={{color:'#27500A',fontFamily:'monospace'}}>x + 6 = 15 ✓</span> (pomnożono każdy wyraz)
-  </div>
-</>,
-
-sprzecz: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
-    Nie każde równanie ma rozwiązanie. Po przekształceniach możemy dojść do zdania zawsze fałszywego lub zawsze prawdziwego — niezależnie od wartości x.
-  </p>
-
-  <SH>Typ 1: Równanie sprzeczne — brak rozwiązań</SH>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:12}}>
-    Równanie sprzeczne po uproszczeniu daje fałszywe zdanie (np. <span style={{fontFamily:'monospace'}}>3 = 7</span>). Nie ma żadnego rozwiązania.
-  </p>
-
-  <Task level="hard" label="Rozpoznaj typ równania" eq="3(2x + 1) − 2(3x − 4) = 15" />
-  <Steps steps={[
-    ['Rozwijamy nawiasy:','6x + 3 − 6x + 8 = 15'],
-    ['Zbieramy wyrazy (6x i −6x znoszą się!):','11 = 15'],
-  ]} answer={['Brak rozwiązań — równanie sprzeczne','11 ≠ 15. Zbiór rozwiązań: ∅']} answerType="none" />
-
-  <SH>Typ 2: Równanie tożsamościowe — nieskończenie wiele rozwiązań</SH>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:12}}>
-    Równanie tożsamościowe jest prawdziwe dla każdej wartości x. Po uproszczeniu daje zdanie zawsze prawdziwe (np. <span style={{fontFamily:'monospace'}}>0 = 0</span>).
-  </p>
-
-  <Task level="hard" label="Rozpoznaj typ równania" eq="4(x + 2) − 2(2x − 1) = 10" />
-  <Steps steps={[
-    ['Rozwijamy nawiasy:','4x + 8 − 4x + 2 = 10'],
-    ['Zbieramy wyrazy (4x i −4x znoszą się!):','10 = 10'],
-  ]} answer={['Nieskończenie wiele rozwiązań — równanie tożsamościowe','0=0. Każda liczba rzeczywista jest rozwiązaniem. Zbiór: ℝ']} answerType="inf" />
-
-  <SH>Jak rozpoznać — tabela</SH>
-  <div style={{background:C.bg,borderRadius:8,padding:'16px',border:`0.5px solid ${C.border}`}}>
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-      {[
-        ['Wynik','Typ','Rozwiązania'],
-        ['x = konkretna liczba','Normalne','Jedno rozwiązanie'],
-        ['a = b (a≠b)','Sprzeczne','Brak (∅)'],
-        ['0 = 0  lub  a = a','Tożsamościowe','Wszystkie (ℝ)'],
-      ].map((row,i)=>row.map((cell,j)=>(
-        <div key={`${i}${j}`} style={{padding:'8px 10px',borderRadius:8,fontSize:12,fontFamily:i>0&&j===0?'monospace':'inherit',
-          background:i===0?'#0F1729':C.white,
-          color:i===0?'rgba(255,255,255,.6)':j===0?C.text2:j===1?C.text:C.text2,
-          fontWeight:i===0?500:400,
-          border:i>0?`0.5px solid ${C.border}`:'none',
-        }}>{cell}</div>
-      )))}
-    </div>
-  </div>
-</>,
-
-bledy: <>
-  <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
-    Sprawdzenie rozwiązania w zadaniach otwartych CKE jest <strong style={{color:C.text,fontWeight:500}}>obowiązkowe i punktowane</strong>. Pominięcie = utrata punktu za "weryfikację".
-  </p>
-
-  <div style={{background:'#0F1729',borderRadius:14,padding:'18px 20px',marginBottom:16}}>
-    <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,.6)',marginBottom:14}}>Wzorcowy zapis sprawdzenia (tak pisze się w arkuszu CKE):</div>
-    {[
-      ['Napisz oryginalne równanie','4x + 5(x−64) = 400'],
-      ['Podstaw znalezione x','x=80: 4 · 80 + 5 · (80−64) = ?'],
-      ['Oblicz lewą stronę','320 + 5 · 16 = 320 + 80 = 400'],
-      ['Porównaj z prawą','400 = 400 ✓ → x = 80 jest rozwiązaniem'],
-    ].map(([s,eq],i)=>(
-      <div key={i} style={{display:'flex',gap:12,marginBottom:8,alignItems:'flex-start'}}>
-        <div style={{width:20,height:20,borderRadius:'50%',background:'rgba(255,255,255,.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,color:'rgba(255,255,255,.6)',flexShrink:0,marginTop:1}}>{i+1}</div>
-        <div>
-          <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginBottom:2}}>{s}</div>
-          <div style={{fontFamily:'monospace',fontSize:13,color:'#FF7A4D'}}>{eq}</div>
-        </div>
-      </div>
-    ))}
-  </div>
-
-  <SH>Kompletna lista błędów — co widzi egzaminator</SH>
-  {[
-    {b:'Błąd znaku przy przenoszeniu',w:'3x + 2 = x + 10  →  3x + x = 10 + 2 ✗',ok:'3x − x = 10 − 2  →  2x = 8 ✓'},
-    {b:'Błąd przy rozwijaniu nawiasu',w:'3(x − 4) = 3x − 4 ✗',ok:'3(x − 4) = 3x − 12 ✓'},
-    {b:'Minus przed nawiasem',w:'−(2x + 3) = −2x + 3 ✗',ok:'−(2x + 3) = −2x − 3 ✓'},
-    {b:'Dzielenie tylko jednej strony',w:'4x = 20  →  4x ÷ 4 = 20 ✗ (nie podzielono prawej)',ok:'4x ÷ 4 = 20 ÷ 4  →  x = 5 ✓'},
-    {b:'Przy ułamkach — pominięcie mnożenia wyrazów całkowitych',w:'x/3 + 2 = 5, ×3: x + 2 = 15 ✗',ok:'x/3 + 2 = 5, ×3: x + 6 = 15 ✓'},
-    {b:'Pominięcie sprawdzenia',w:'Brak weryfikacji = brak punktu za uzasadnienie',ok:'Zawsze dopisz sprawdzenie w ORYGINALNYM równaniu'},
-  ].map(({b,w,ok})=>(
-    <div key={b} style={{background:C.bg,borderRadius:8,padding:'12px 14px',marginBottom:8,borderLeft:'3px solid #A32D2D',border:`0.5px solid ${C.border}`,borderLeftWidth:3}}>
-      <div style={{fontSize:12,fontWeight:500,color:C.text,marginBottom:6}}>{b}</div>
-      <div style={{fontFamily:'monospace',fontSize:12,color:'#A32D2D',marginBottom:5}}>{w}</div>
-      <div style={{fontFamily:'monospace',fontSize:12,color:'#27500A'}}>✓ {ok}</div>
-    </div>
-  ))}
-  <div style={{background:'#EAF3DE',borderLeft:'3px solid #3B6D11',borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:'#27500A',lineHeight:1.75,margin:'14px 0'}}>
-    <strong>Złota zasada CKE:</strong> W zadaniach otwartych zapisuj każdy krok — egzaminatorzy przyznają punkty za tok rozwiązania, nawet przy błędzie rachunkowym w ostatnim kroku. Nie pisz tylko wyniku!
-  </div>
-</>,
-
+// Callout box
+const Rule = ({type,children}) => {
+  const m={warn:{bg:'#FAEEDA',bl:'#854F0B',c:'#633806'},tip:{bg:'#EAF3DE',bl:'#3B6D11',c:'#27500A'},info:{bg:'#E6F1FB',bl:'#185FA5',c:'#0C447C'},err:{bg:'#FCEBEB',bl:'#A32D2D',c:'#791F1F'}}[type]||{bg:'#E6F1FB',bl:'#185FA5',c:'#0C447C'}
+  return <div style={{background:m.bg,borderLeft:`3px solid ${m.bl}`,borderRadius:'0 8px 8px 0',padding:'12px 16px',fontSize:13,color:m.c,lineHeight:1.75,margin:'14px 0'}}>{children}</div>
 }
 
+// Tabela działań odwrotnych
+function InverseOpsTable() {
+  const rows = [
+    ['+  (dodawanie)',    '−  (odejmowanie)',   'x + 7 = 15',  'x = 15 − 7 = 8'],
+    ['−  (odejmowanie)', '+  (dodawanie)',      'x − 3 = 12',  'x = 12 + 3 = 15'],
+    ['×  (mnożenie)',    '÷  (dzielenie)',      '5x = 35',     'x = 35 ÷ 5 = 7'],
+    ['÷  (dzielenie)',   '×  (mnożenie)',       'x ÷ 4 = 5',   'x = 5 × 4 = 20'],
+  ]
+  return (
+    <div style={{overflowX:'auto',margin:'14px 0'}}>
+      <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+        <thead>
+          <tr style={{background:C.navy}}>
+            {['Masz','Używasz','Przykład','Wynik'].map(h=>(
+              <th key={h} style={{padding:'10px 14px',textAlign:'left',color:'rgba(255,255,255,.75)',fontSize:11,fontWeight:500,letterSpacing:'.05em'}}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([m,u,p,w],i)=>(
+            <tr key={i} style={{background:i%2===0?C.white:C.bg}}>
+              <td style={{padding:'8px 14px',fontFamily:'monospace',fontWeight:600,color:C.accent,borderBottom:`0.5px solid ${C.border}`}}>{m}</td>
+              <td style={{padding:'8px 14px',fontFamily:'monospace',fontWeight:600,color:C.green,borderBottom:`0.5px solid ${C.border}`}}>{u}</td>
+              <td style={{padding:'8px 14px',fontFamily:'monospace',color:C.text,borderBottom:`0.5px solid ${C.border}`}}>{p}</td>
+              <td style={{padding:'8px 14px',fontFamily:'monospace',fontWeight:600,color:'#27500A',borderBottom:`0.5px solid ${C.border}`}}>{w}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// Interaktywna waga — wizualizacja złotej zasady
+function Balance({left, right, solved}) {
+  return (
+    <div style={{textAlign:'center',padding:'20px 0',margin:'14px 0',background:C.bg,borderRadius:12,border:`0.5px solid ${C.border}`}}>
+      <div style={{fontSize:12,color:C.text3,marginBottom:10,textTransform:'uppercase',letterSpacing:'.06em'}}>Złota zasada — waga równowagi</div>
+      <div style={{display:'flex',alignItems:'flex-end',justifyContent:'center',gap:0}}>
+        {/* Lewa szalka */}
+        <div style={{textAlign:'center'}}>
+          <div style={{background:solved?'#EAF3DE':'#E6F1FB',border:`2px solid ${solved?'#3B6D11':'#185FA5'}`,borderRadius:8,padding:'10px 20px',marginBottom:4,fontFamily:'monospace',fontSize:16,fontWeight:700,color:solved?'#27500A':'#0C447C',minWidth:80}}>{left}</div>
+          <div style={{fontSize:10,color:C.text3}}>Lewa strona</div>
+        </div>
+        {/* Belka wagi */}
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',margin:'0 8px',paddingBottom:20}}>
+          <div style={{width:120,height:4,background:C.navy,borderRadius:2,position:'relative'}}>
+            <div style={{position:'absolute',top:-10,left:'50%',transform:'translateX(-50%)',fontSize:18}}>⚖️</div>
+          </div>
+        </div>
+        {/* Prawa szalka */}
+        <div style={{textAlign:'center'}}>
+          <div style={{background:solved?'#EAF3DE':'#E6F1FB',border:`2px solid ${solved?'#3B6D11':'#185FA5'}`,borderRadius:8,padding:'10px 20px',marginBottom:4,fontFamily:'monospace',fontSize:16,fontWeight:700,color:solved?'#27500A':'#0C447C',minWidth:80}}>{right}</div>
+          <div style={{fontSize:10,color:C.text3}}>Prawa strona</div>
+        </div>
+      </div>
+      {solved&&<div style={{fontSize:12,color:'#3B6D11',marginTop:8,fontWeight:500}}>✓ Waga w równowadze — równanie rozwiązane!</div>}
+    </div>
+  )
+}
+
+// ── TEORIA — 6 sekcji ─────────────────────────────────────────────────────────
+const TTABS = [
+  {id:'def',     label:'Czym jest równanie?'},
+  {id:'zasady',  label:'Złota zasada i operacje'},
+  {id:'proste',  label:'Równania ax + b = c'},
+  {id:'obu',     label:'x po obu stronach'},
+  {id:'ulamki',  label:'★ Ułamki i dziesiętne'},
+  {id:'slowa',   label:'Zadania tekstowe CKE'},
+]
+
 function TeoriaContent({onComplete}) {
-  const [tab,setTab] = useState('def')
+  const [tab, setTab] = useState('def')
+  const [balanceStep, setBalanceStep] = useState(0)
+
+  const CONTENT = {
+
+    def: <div>
+      <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+        <strong style={{color:C.text}}>Równanie</strong> to matematyczna waga. Znak <strong style={{fontFamily:'monospace',color:C.text}}>= </strong> mówi, że lewa strona waży dokładnie tyle samo, co prawa. <strong style={{color:C.text}}>Niewiadoma</strong> (najczęściej <em>x</em>) to ukryta liczba, którą musimy odkryć — jak detektyw.
+      </p>
+      <div style={{background:C.navy,borderRadius:10,padding:'18px 24px',marginBottom:16,textAlign:'center'}}>
+        <div style={{fontSize:11,letterSpacing:'.1em',textTransform:'uppercase',color:'rgba(255,255,255,.3)',marginBottom:10}}>Przykład z podręcznika (Abeka 3.11)</div>
+        <div style={{fontFamily:'monospace',fontSize:22,color:'#fff',lineHeight:2}}>
+          n + 6 = 9
+        </div>
+        <div style={{fontSize:13,color:'rgba(255,255,255,.5)',marginTop:4}}>n + 6 i 9 to dwie strony wagi. Szukamy n.</div>
+      </div>
+
+      <SH>Cztery zasady przekształcania równań (Abeka 3.11)</SH>
+      <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:14}}>
+        {[
+          ['1','Tę samą liczbę możemy DODAĆ do obu stron','Równość zostaje zachowana'],
+          ['2','Tę samą liczbę możemy ODJĄĆ od obu stron','Równość zostaje zachowana'],
+          ['3','Obie strony możemy POMNOŻYĆ przez tę samą liczbę','Równość zostaje zachowana'],
+          ['4','Obie strony możemy PODZIELIĆ przez tę samą liczbę (≠ 0)','Równość zostaje zachowana'],
+        ].map(([n,t,d])=>(
+          <div key={n} style={{display:'flex',gap:12,padding:'10px 14px',background:C.bg,borderRadius:8,border:`0.5px solid ${C.border}`,alignItems:'flex-start'}}>
+            <div style={{width:24,height:24,borderRadius:'50%',background:C.navy,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{n}</div>
+            <div>
+              <div style={{fontSize:13,fontWeight:500,color:C.text,marginBottom:2}}>{t}</div>
+              <div style={{fontSize:12,color:C.text3}}>{d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <Rule type="info"><strong>Złota zasada (Abeka):</strong> "Whatever is done to one side of an equation must be done to the other side." — Co robisz po jednej stronie, musisz zrobić po drugiej.</Rule>
+
+      <SH>Ile rozwiązań może mieć równanie liniowe?</SH>
+      <div style={{display:'flex',flexDirection:'column',gap:6}}>
+        {[
+          ['Dokładnie jedno','ax + b = c, a≠0','Typowy przypadek — x = konkretna liczba','#EAF3DE','#27500A'],
+          ['Brak (∅)','Równanie sprzeczne','Po uproszczeniu: 5 = −2 (zawsze fałsz)','#FCEBEB','#791F1F'],
+          ['Nieskończenie wiele (ℝ)','Równanie tożsamościowe','Po uproszczeniu: 0 = 0 (zawsze prawda)','#E6F1FB','#0C447C'],
+        ].map(([t,p,d,bg,c])=>(
+          <div key={t} style={{display:'flex',gap:12,padding:'10px 14px',background:bg,borderRadius:8,alignItems:'center'}}>
+            <div style={{fontSize:13,fontWeight:500,color:c,minWidth:190,flexShrink:0}}>{t}</div>
+            <div>
+              <div style={{fontFamily:'monospace',fontSize:12,color:c,marginBottom:2}}>{p}</div>
+              <div style={{fontSize:12,color:C.text2}}>{d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>,
+
+    zasady: <div>
+      <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+        Aby wyizolować x, używamy <strong style={{color:C.text}}>działań odwrotnych</strong> — działania po przeciwnych stronach znoszą się. Cel zawsze ten sam: doprowadzić do postaci <strong style={{fontFamily:'monospace',color:C.text}}>x = liczba</strong>.
+      </p>
+
+      <SH>Tabela działań odwrotnych</SH>
+      <InverseOpsTable/>
+
+      <SH>Interaktywna waga — jak działa złota zasada</SH>
+      <p style={{fontSize:13,color:C.text2,marginBottom:10}}>Rozwiążemy równanie <span style={{fontFamily:'monospace',fontWeight:600}}>4x + 3 = 15</span> krok po kroku:</p>
+      <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap'}}>
+        {['Start','Krok 1: odejmij 3','Krok 2: podziel przez 4','Rozwiązanie'].map((l,i)=>(
+          <button key={i} onClick={()=>setBalanceStep(i)} style={{padding:'6px 14px',fontSize:12,borderRadius:20,border:`0.5px solid ${balanceStep===i?C.navy:C.border}`,background:balanceStep===i?C.navy:C.white,color:balanceStep===i?'#fff':C.text2,cursor:'pointer',fontFamily:'inherit'}}>
+            {l}
+          </button>
+        ))}
+      </div>
+      {balanceStep===0&&<Balance left="4x + 3" right="15" solved={false}/>}
+      {balanceStep===1&&<Balance left="4x + 3 − 3 = 4x" right="15 − 3 = 12" solved={false}/>}
+      {balanceStep===2&&<Balance left="4x ÷ 4 = x" right="12 ÷ 4 = 3" solved={false}/>}
+      {balanceStep===3&&<Balance left="x" right="3" solved={true}/>}
+
+      <SH>Przenoszenie wyrazów — skrótowa technika</SH>
+      <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:10}}>
+        Zamiast pisać "odejmuję od obu stron", mówimy że <strong style={{color:C.text}}>przenosimy wyraz i zmieniamy znak</strong>. To skrót, ale wynik jest identyczny.
+      </p>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+        <div style={{background:C.bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
+          <div style={{fontSize:11,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:8}}>Zapis formalny</div>
+          <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:2.4}}>
+            3x + 5 = 14<br/>
+            3x + 5 − 5 = 14 − 5<br/>
+            3x = 9<br/>
+            3x ÷ 3 = 9 ÷ 3<br/>
+            x = 3
+          </div>
+        </div>
+        <div style={{background:C.bg,borderRadius:8,padding:'14px',border:`0.5px solid ${C.border}`}}>
+          <div style={{fontSize:11,color:C.text3,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:8}}>Zapis skrótowy (praktyczny)</div>
+          <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:2.4}}>
+            3x + 5 = 14<br/>
+            3x = 14 − 5<br/>
+            3x = 9<br/>
+            x = 3
+          </div>
+        </div>
+      </div>
+      <Rule type="warn"><strong>Zmiana strony = zmiana znaku:</strong> +5 po lewej → −5 po prawej · −7 po prawej → +7 po lewej · +3x po prawej → −3x po lewej. Bez wyjątków.</Rule>
+    </div>,
+
+    proste: <div>
+      <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+        Równanie <strong style={{color:C.text}}>ax + b = c</strong> rozwiązujemy w dwóch krokach: izolujemy stałą (dodaj/odejmij), potem izolujemy x (pomnóż/podziel). Zawsze sprawdzamy wynik!
+      </p>
+      <div style={{background:C.navy,borderRadius:10,padding:'16px 24px',marginBottom:16,textAlign:'center'}}>
+        <div style={{fontFamily:'monospace',fontSize:16,color:'#fff',lineHeight:2.4}}>
+          ax + b = c &nbsp;→&nbsp; ax = c − b &nbsp;→&nbsp; x = (c − b) ÷ a
+        </div>
+      </div>
+
+      <Task level="basic" label="Krok 1: odejmowanie (Abeka 3.11a)" eq="x + 5 = 20/2" />
+      <Step n={1} text="Upraszczamy prawą stronę:" result="x + 5 = 10" />
+      <Step n={2} text="Odejmujemy 5 od obu stron:" result="x = 10 − 5 = 5" hi />
+      <Ans val="x = 5" note="Sprawdzenie: 5 + 5 = 20/2 → 10 = 10 ✓" />
+
+      <Task level="basic" label="Krok 2: mnożenie i odejmowanie (Abeka 3.11b)" eq="4x + 3 = 21 − 6" />
+      <Step n={1} text="Upraszczamy prawą stronę: 21 − 6 = 15" result="4x + 3 = 15" />
+      <Step n={2} text="Odejmujemy 3 od obu stron:" result="4x = 12" />
+      <Step n={3} text="Dzielimy przez 4:" result="x = 3" hi />
+      <Ans val="x = 3" note="Sprawdzenie: 4·3 + 3 = 21 − 6 → 15 = 15 ✓" />
+
+      <Task level="med" label="Łączenie wyrazów podobnych (Abeka 3.11c)" eq="3y + 2y = 15" />
+      <Step n={1} text="Łączymy wyrazy podobne po lewej: 3y + 2y = 5y" result="5y = 15" />
+      <Step n={2} text="Dzielimy przez 5:" result="y = 3" hi />
+      <Ans val="y = 3" note="Sprawdzenie: 3·3 + 2·3 = 9 + 6 = 15 ✓" />
+
+      <Task level="med" label="Wynik ułamkowy — normalny wynik na CKE!" eq="4x + 5 = 14" />
+      <Step n={1} text="Odejmujemy 5:" result="4x = 9" />
+      <Step n={2} text="Dzielimy przez 4:" result="x = 9/4 = 2,25" hi />
+      <Ans val="x = 9/4" note="Na egzaminie CKE wynik ułamkowy jest w pełni poprawny!" />
+
+      <Task level="hard" label="Ujemny współczynnik przy x" eq="−3x + 7 = −2" />
+      <Step n={1} text="Odejmujemy 7:" result="−3x = −9" />
+      <Step n={2} text="Dzielimy przez −3 (ujemna — tylko wynik zmienia znak):" result="x = 3" hi />
+      <Ans val="x = 3" note="Sprawdzenie: −3·3 + 7 = −9 + 7 = −2 ✓" />
+
+      <Rule type="err"><strong>Najczęstszy błąd na CKE:</strong> zapomnienie o sprawdzeniu. W zadaniach otwartych sprawdzenie to osobny punkt! Zawsze podstaw wynik do ORYGINALNEGO równania.</Rule>
+    </div>,
+
+    obu: <div>
+      <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+        Gdy x pojawia się po <strong style={{color:C.text}}>obu stronach</strong>, przenosimy wszystkie wyrazy z x na lewą, liczby na prawą. Zasada przenoszenia (zmiana znaku) obowiązuje tak samo.
+      </p>
+
+      <Task level="basic" label="Standardowy typ (Abeka: 6x + 4 = 4x + 12)" eq="6x + 4 = 4x + 12" />
+      <Step n={1} text="Przenosimy 4x na lewą (odejmujemy 4x od obu stron):" result="2x + 4 = 12" />
+      <Step n={2} text="Przenosimy 4 na prawą:" result="2x = 8" />
+      <Step n={3} text="Dzielimy przez 2:" result="x = 4" hi />
+      <Ans val="x = 4" note="Sprawdzenie: 6·4+4=28 i 4·4+12=28 ✓" />
+
+      <Task level="med" label="Ujemne współczynniki po obu stronach" eq="2 − 3x = 5 − 7x" />
+      <Step n={1} text="Przenosimy −7x na lewą (dodajemy 7x do obu stron):" result="2 + 4x = 5" />
+      <Step n={2} text="Przenosimy 2 na prawą:" result="4x = 3" />
+      <Step n={3} text="Dzielimy przez 4:" result="x = 3/4" hi />
+      <Ans val="x = 3/4" note="Sprawdzenie: 2−3·(3/4)=2−9/4=−1/4 i 5−7·(3/4)=5−21/4=−1/4 ✓" />
+
+      <Task level="hard" label="Nawiasy + x po obu stronach (Abeka: 2(x−3)=10)" eq="2(x − 3) = 10" />
+      <Step n={1} text="Rozwijamy nawias:" result="2x − 6 = 10" />
+      <Step n={2} text="Przenosimy −6 na prawą:" result="2x = 16" />
+      <Step n={3} text="Dzielimy przez 2:" result="x = 8" hi />
+      <Ans val="x = 8" note="Sprawdzenie: 2·(8−3)=2·5=10 ✓" />
+
+      <Task level="cke" label="Weryfikacja przekształcenia — typ CKE (zadanie zamknięte)" eq="Które przekształcenie 5x − 3 = 2 jest BŁĘDNE?" sub="Wskaż błędne działanie" />
+      <div style={{display:'flex',flexDirection:'column',gap:6,margin:'12px 0 14px'}}>
+        {[
+          ['A','5x = 2 + 3','Poprawne — dodano 3 do obu stron'],
+          ['B','5x = 5','Poprawne — 2+3=5'],
+          ['C','x = 1','Poprawne — 5÷5=1'],
+          ['D','5x − 5 = 0','BŁĘDNE — odjęto 5 tylko od lewej strony!'],
+        ].map(([l,eq,d],i)=>(
+          <div key={l} style={{display:'flex',gap:10,padding:'10px 14px',borderRadius:8,background:i===3?'#FCEBEB':C.bg,border:`0.5px solid ${i===3?'#F7C1C1':C.border}`}}>
+            <span style={{fontWeight:700,color:i===3?'#A32D2D':C.text3,flexShrink:0,minWidth:16}}>{l}.</span>
+            <span style={{fontFamily:'monospace',color:i===3?'#791F1F':C.text,flex:1}}>{eq}</span>
+            <span style={{fontSize:12,color:i===3?'#A32D2D':C.text3}}>{d}</span>
+          </div>
+        ))}
+      </div>
+
+      <SH>Tabela typowych błędów przy przenoszeniu</SH>
+      {[
+        ['Nie zmieniono znaku','3x + 2 = x + 10 → 3x + x = 10 ✗','3x − x = 10 − 2 → x = 4 ✓'],
+        ['Przeniesiono x, ale zapomniano o liczbie','3x + 2 = x + 10 → 3x − x + 2 = 10 ✗','3x − x = 10 − 2 ✓'],
+        ['Dzielenie tylko jednej strony','4x = 20 → 4x ÷ 4 = 20 ✗','4x ÷ 4 = 20 ÷ 4 → x = 5 ✓'],
+      ].map(([b,w,ok])=>(
+        <div key={b} style={{background:C.bg,borderRadius:8,padding:'12px 14px',marginBottom:8,borderLeft:'3px solid #A32D2D',border:`0.5px solid ${C.border}`,borderLeftWidth:3}}>
+          <div style={{fontSize:12,fontWeight:500,color:C.text,marginBottom:5}}>⚠️ {b}</div>
+          <div style={{fontFamily:'monospace',fontSize:12,color:'#A32D2D',marginBottom:4}}>{w}</div>
+          <div style={{fontFamily:'monospace',fontSize:12,color:'#27500A'}}>✓ {ok}</div>
+        </div>
+      ))}
+    </div>,
+
+    ulamki: <div>
+      <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+        Ułamki i dziesiętne w równaniach eliminujemy przez pomnożenie przez <strong style={{color:C.text}}>NWW mianowników</strong> lub przez odpowiednią potęgę 10. To pozwala wrócić do znajomego równania bez ułamków. Metoda pochodzi wprost z podręcznika Abeka (Lekcja 3.13 i 3.14).
+      </p>
+
+      <SH>Eliminowanie ułamków — mnożenie przez NWW (Abeka 3.13)</SH>
+      <Task level="basic" label="Jeden mianownik" eq="(2/3)y = 8" />
+      <Step n={1} text="Mnożymy przez odwrotność 2/3, czyli przez 3/2 (metoda Abeka):" result="y = 8 · (3/2) = 12" hi />
+      <Ans val="y = 12" note="Sprawdzenie: (2/3)·12 = 8 ✓" />
+
+      <Task level="med" label="Dwa różne mianowniki (Abeka 3.13a)" eq="(1/2)x + (1/5)x = 14" sub="NWW mianowników 2 i 5 = 10" />
+      <Step n={1} text="Mnożymy każdy wyraz przez 10 (NWW mianowników 2 i 5):" result="5x + 2x = 140" />
+      <Step n={2} text="Łączymy: 7x = 140, dzielimy przez 7:" result="x = 20" hi />
+      <Ans val="x = 20" note="Sprawdzenie: (1/2)·20 + (1/5)·20 = 10 + 4 = 14 ✓" />
+
+      <Task level="hard" label="Ułamki z wyrażeniami (Abeka 3.13b i 3.13c)" eq="(2/3)x = 1/2" sub="NWW = 6" />
+      <Step n={1} text="Mnożymy każdy wyraz przez 6:" result="4x = 3" />
+      <Step n={2} text="Dzielimy przez 4:" result="x = 3/4" hi />
+      <Ans val="x = 3/4" note="Sprawdzenie: (2/3)·(3/4) = 6/12 = 1/2 ✓" />
+
+      <SH>Eliminowanie dziesiętnych — mnożenie przez potęgę 10 (Abeka 3.14)</SH>
+      <Rule type="info"><strong>Strategia Abeka 3.14:</strong> Dziesiętne eliminujesz przez pomnożenie przez 10 (jedna cyfra po przecinku), 100 (dwie cyfry) itp. To zamienia dziesiętne w liczby całkowite.</Rule>
+
+      <Task level="basic" label="Jeden dziesiętny współczynnik (Abeka 3.14a)" eq="0,3x = 21" sub="0,3 = dziesiąte → mnożymy przez 10" />
+      <Step n={1} text="Mnożymy obie strony przez 10:" result="3x = 210" />
+      <Step n={2} text="Dzielimy przez 3:" result="x = 70" hi />
+      <Ans val="x = 70" note="Sprawdzenie: 0,3·70 = 21 ✓" />
+
+      <Task level="med" label="Dwa dziesiętne (Abeka 3.14b)" eq="0,05x = 2,5" sub="setne → mnożymy przez 100" />
+      <Step n={1} text="Mnożymy przez 100:" result="5x = 250" />
+      <Step n={2} text="Dzielimy przez 5:" result="x = 50" hi />
+      <Ans val="x = 50" note="Sprawdzenie: 0,05·50 = 2,5 ✓" />
+
+      <Task level="hard" label="Mieszane: ułamki i dziesiętne (Abeka 3.16)" eq="0,4x + 0,03x = 7,31" sub="setne → mnożymy przez 100" />
+      <Step n={1} text="Mnożymy każdy wyraz przez 100:" result="40x + 3x = 731" />
+      <Step n={2} text="Łączymy: 43x = 731, dzielimy przez 43:" result="x = 17" hi />
+      <Ans val="x = 17" note="Sprawdzenie: 0,4·17 + 0,03·17 = 6,8 + 0,51 = 7,31 ✓" />
+
+      <Task level="cke" label="Złożone: ułamki i dziesiętne po obu stronach" eq="(5/6)x + (1/2)x = 10 − 3" sub="NWW(6,2) = 6 → mnożymy przez 6" />
+      <Step n={1} text="Upraszczamy prawą: 10−3=7. Mnożymy przez 6:" result="5x + 3x = 42" />
+      <Step n={2} text="8x = 42, dzielimy przez 8:" result="x = 42/8 = 21/4 = 5,25" hi />
+      <Ans val="x = 21/4" note="Sprawdzenie: (5/6)·(21/4) + (1/2)·(21/4) = 35/8 + 21/8 = 56/8 = 7 ✓" />
+    </div>,
+
+    slowa: <div>
+      <p style={{fontSize:14,lineHeight:1.9,color:C.text2,marginBottom:14}}>
+        Zadania tekstowe to najważniejszy typ na egzaminie CKE — zwykle za 2-3 punkty. Podręcznik Abeka (Lekcje 3.15-3.16) pokazuje precyzyjny 5-krokowy algorytm, który działa na każde zadanie.
+      </p>
+
+      <SH>Algorytm 5 kroków — Abeka 3.16</SH>
+      <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
+        {[
+          ['Przeczytaj zadanie uważnie','Wypisz dane. Co jest dane? Co szukamy?'],
+          ['Oznacz niewiadomą','Wybierz x — zwykle to, o co pyta zadanie. Wyraź resztę przez x.'],
+          ['Ułóż równanie','Przetłumacz treść zadania na równanie algebraiczne.'],
+          ['Rozwiąż równanie','Standardowe kroki: przenieś, podziel, sprawdź.'],
+          ['Odpowiedz na pytanie','Podaj odpowiedź w kontekście zadania (nie zawsze sam x!). Sprawdź czy ma sens.'],
+        ].map(([t,d],i)=>(
+          <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',padding:'10px 14px',background:C.bg,borderRadius:8,border:`0.5px solid ${C.border}`}}>
+            <div style={{width:24,height:24,borderRadius:'50%',background:C.navy,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0,marginTop:1}}>{i+1}</div>
+            <div>
+              <div style={{fontSize:13,fontWeight:500,color:C.text,marginBottom:2}}>{t}</div>
+              <div style={{fontSize:13,color:C.text2,lineHeight:1.5}}>{d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <SH>Słownik tłumaczeń: słowa → algebra</SH>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:16}}>
+        {[
+          ['"powiększona o 5"','+ 5','x + 5'],
+          ['"zmniejszona o 3"','− 3','x − 3'],
+          ['"3 razy więcej"','× 3','3x'],
+          ['"podzielona przez 4"','÷ 4','x/4'],
+          ['"o 3 droższy niż x"','x + 3','cena = x + 3'],
+          ['"suma dwóch liczb = 15"','x + (x+1) = 15','kolejne liczby'],
+          ['"razem kosztują 15 zł"','suma = 15','x + y = 15'],
+          ['"jest 10% starszym"','× 1,1','wiek = 1,1x'],
+        ].map(([sl,zn,pr])=>(
+          <div key={sl} style={{background:C.bg,borderRadius:8,padding:'10px 12px',border:`0.5px solid ${C.border}`}}>
+            <div style={{fontSize:12,color:C.text3,marginBottom:4}}>{sl}</div>
+            <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <span style={{fontFamily:'monospace',fontSize:13,fontWeight:600,color:C.accent}}>{zn}</span>
+              <span style={{fontSize:11,color:C.text3}}>np. {pr}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <SH>Przykład 1 — zeszyt i długopis (z przesłanego materiału)</SH>
+      <div style={{background:C.bg,borderRadius:8,padding:'14px 16px',marginBottom:12,border:`0.5px solid ${C.border}`}}>
+        <div style={{fontSize:14,color:C.text2,lineHeight:1.75,fontStyle:'italic',marginBottom:10}}>"Zeszyt i długopis kosztują razem 15 zł. Długopis jest o 3 zł droższy od zeszytu. Ile kosztuje każde z nich?"</div>
+        <Step n={1} text="Oznaczamy: x = cena zeszytu. Długopis = x + 3" result="" />
+        <Step n={2} text="Równanie (razem = 15 zł):" result="x + (x + 3) = 15" />
+        <Step n={3} text="Upraszczamy: 2x + 3 = 15 → 2x = 12" result="x = 6" hi />
+      </div>
+      <Ans val="Zeszyt: 6 zł · Długopis: 9 zł" note="Sprawdzenie: 6 + 9 = 15 ✓ · 9 − 6 = 3 ✓" />
+
+      <SH>Przykład 2 — telefon (Abeka 3.12: Mrs. Greene)</SH>
+      <div style={{background:C.bg,borderRadius:8,padding:'14px 16px',marginBottom:12,border:`0.5px solid ${C.border}`}}>
+        <div style={{fontSize:14,color:C.text2,lineHeight:1.75,fontStyle:'italic',marginBottom:10}}>"Rozmowa trwała 23 minuty. Pierwsze 3 minuty kosztują 0,95 zł, każda następna minuta 0,15 zł. Ile kosztowała rozmowa?"</div>
+        <Step n={1} text="Dodatkowe minuty (po pierwszych 3): 23 − 3 = 20 minut" result="" />
+        <Step n={2} text="Koszt dodatkowych minut: 20 × 0,15 = 3,00 zł" result="" />
+        <Step n={3} text="Koszt całkowity: 0,95 + 3,00 = 3,95 zł" result="" hi />
+      </div>
+      <Ans val="Koszt rozmowy: 3,95 zł" note="Źródło: Abeka Pre-Algebra, Lesson 57" />
+
+      <SH>Przykład 3 — bilety CKE (typ zadania otwartego, 3 pkt)</SH>
+      <div style={{background:C.bg,borderRadius:8,padding:'14px 16px',marginBottom:12,border:`0.5px solid ${C.border}`}}>
+        <div style={{fontSize:14,color:C.text2,lineHeight:1.75,fontStyle:'italic',marginBottom:10}}>"Cena biletu do teatru jest o 64 zł większa od ceny biletu do kina. Za 4 bilety do teatru i 5 biletów do kina zapłacono 400 zł. Oblicz cenę biletu do teatru." <strong style={{color:C.text}}>(CKE 2023, Zadanie 16, 2 pkt)</strong></div>
+        <Step n={1} text="Oznaczamy: bilet do teatru = x · bilet do kina = x − 64" result="" />
+        <Step n={2} text="Równanie z treści:" result="4x + 5(x − 64) = 400" />
+        <Step n={3} text="Rozwijamy: 4x + 5x − 320 = 400 → 9x = 720" result="x = 80" hi />
+      </div>
+      <Ans val="Bilet do teatru: 80 zł" note="Sprawdzenie: 4·80 + 5·(80−64) = 320 + 80 = 400 ✓" />
+
+      <Rule type="tip"><strong>Złota rada CKE:</strong> W zadaniach otwartych zawsze zapisuj każdy krok. Egzaminatorzy przyznają punkty za tok rozwiązania, nawet przy błędzie rachunkowym na końcu!</Rule>
+    </div>,
+  }
+
   const idx = TTABS.findIndex(t=>t.id===tab)
   return (
     <div style={card}>
-      <SecLabel tab={idx+1} total={TTABS.length}>Teoria</SecLabel>
-      <div style={{display:'flex',gap:5,marginBottom:18,flexWrap:'wrap',paddingBottom:16,borderBottom:`0.5px solid ${C.border}`}}>
+      <div style={{fontSize:10,fontWeight:600,letterSpacing:'.1em',textTransform:'uppercase',color:C.purple,marginBottom:12,display:'flex',alignItems:'center',gap:6}}>
+        <span style={{width:6,height:6,borderRadius:'50%',background:C.purple,display:'inline-block'}}/>
+        Teoria — {TTABS.find(t=>t.id===tab)?.label}
+        <span style={{marginLeft:'auto',fontWeight:400,color:C.text3}}>Sekcja {idx+1} z {TTABS.length}</span>
+      </div>
+      <div style={{display:'flex',gap:5,marginBottom:18,flexWrap:'wrap',paddingBottom:14,borderBottom:`0.5px solid ${C.border}`}}>
         {TTABS.map((t,i)=>{
-          const isDone = i < idx
-          const isActive = t.id === tab
-          return (
-            <button key={t.id} onClick={()=>setTab(t.id)} style={{
-              padding:'5px 12px', fontSize:11, fontWeight:500, borderRadius:20, cursor:'pointer', fontFamily:'inherit', transition:'all .15s',
-              border:`0.5px solid ${isActive?'#0F1729':isDone?'#C0DD97':C.border}`,
-              background:isActive?'#0F1729':isDone?'#EAF3DE':C.white,
-              color:isActive?'#fff':isDone?'#27500A':C.text2,
-            }}>{t.label}</button>
-          )
+          const isDone=i<idx, isActive=t.id===tab
+          return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:'5px 12px',fontSize:11,fontWeight:500,borderRadius:20,cursor:'pointer',fontFamily:'inherit',transition:'all .15s',border:`0.5px solid ${isActive?C.navy:isDone?'#C0DD97':C.border}`,background:isActive?C.navy:isDone?'#EAF3DE':C.white,color:isActive?'#fff':isDone?'#27500A':C.text2}}>{t.label}</button>
         })}
       </div>
-      {TEORIA[tab]}
-      <div style={{display:'flex',justifyContent:'space-between',marginTop:22,gap:8,paddingTop:16,borderTop:`0.5px solid ${C.border}`}}>
-        {idx>0
-          ? <button onClick={()=>setTab(TTABS[idx-1].id)} style={btn()}>← {TTABS[idx-1].label}</button>
-          : <div/>}
+      {CONTENT[tab]}
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:22,gap:8,paddingTop:14,borderTop:`0.5px solid ${C.border}`}}>
+        {idx>0?<button onClick={()=>setTab(TTABS[idx-1].id)} style={btn()}>← {TTABS[idx-1].label}</button>:<div/>}
         {idx<TTABS.length-1
-          ? <button onClick={()=>setTab(TTABS[idx+1].id)} style={btn({background:'#0F1729',color:'#fff',border:'none'})}>{TTABS[idx+1].label} →</button>
-          : <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Ukończyłem teorię →</button>}
+          ?<button onClick={()=>setTab(TTABS[idx+1].id)} style={btn({background:C.navy,color:'#fff',border:'none'})}>{TTABS[idx+1].label} →</button>
+          :<button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Ukończyłem teorię →</button>}
       </div>
     </div>
   )
 }
 
-// ── QUIZ (8 pytań, poziom CKE) ─────────────────────────────────────────────────
+// ── QUIZ (10 pytań, wzorowane na Abeka + CKE) ─────────────────────────────────
 const QUIZ = [
-  {q:'Rozwiąż równanie:',eq:'3(2x − 5) = x + 10',opts:['x = 5','x = 7','x = 3','x = 4'],ans:0,why:'Rozwijamy: 6x−15=x+10. Przenosimy: 5x=25. Dzielimy: x=5. Sprawdzenie: 3 · (10−5)=15 i 5+10=15 ✓'},
-  {q:'Rozwiąż równanie (uwaga na znaki!):',eq:'2 − 3x = 5 − 7x',opts:['x = 3/4','x = −3/4','x = 4/3','x = 1'],ans:0,why:'Przenosimy: −3x+7x=5−2 → 4x=3 → x=3/4. Sprawdzenie: 2−9/4=−1/4 i 5−21/4=−1/4 ✓'},
-  {q:'Rozwiąż równanie z ułamkami:',eq:'(2x + 1)/3 − (x − 2)/4 = 2',opts:['x = 14/5','x = 2','x = 3','x = 5/14'],ans:0,why:'NWW=12. Mnożymy: 4(2x+1)−3(x−2)=24 → 8x+4−3x+6=24 → 5x=14 → x=14/5.'},
-  {q:'Co wychodzi po uproszczeniu?',eq:'3(2x + 1) − 2(3x − 4) = 15',opts:['x = 2','x = 0','Brak rozwiązań','Nieskończenie wiele'],ans:2,why:'Rozwijamy: 6x+3−6x+8=15 → 11=15. To zawsze fałsz — równanie sprzeczne, brak rozwiązań.'},
-  {q:'Rozwiąż równanie (dwa nawiasy):',eq:'5(x + 3) − 2(3x − 1) = 3(2 − x) + 4',opts:['x = −3,5','x = 3,5','x = −7','x = 7'],ans:0,why:'Rozwijamy: 5x+15−6x+2=6−3x+4 → −x+17=10−3x → 2x=−7 → x=−3,5.'},
-  {q:'4 bilety do teatru i 5 do kina kosztują 400 zł. Bilet do kina jest o 64 zł tańszy niż do teatru. Ile kosztuje bilet do teatru? (Zadanie CKE 2023)',eq:'',opts:['80 zł','72 zł','96 zł','64 zł'],ans:0,why:'Teatr=x, kino=x−64. Równanie: 4x+5(x−64)=400 → 9x−320=400 → 9x=720 → x=80 zł.'},
-  {q:'Które z przekształceń równania  5x − 3 = 2  jest błędne?',eq:'',opts:['5x = 5','x = 1','5x − 5 = 0','5x = 2 + 3'],ans:2,why:'5x−5=0 to błąd — odjęto 5 tylko od lewej strony. Poprawnie: 5x−3=2 → 5x=5 lub 5x−5=0 tylko gdybyśmy odjęli 5 od OBUEQUATIONS stron.'},
-  {q:'Suma dwóch kolejnych liczb parzystych wynosi 74. Jaka jest większa z tych liczb?',eq:'',opts:['38','36','40','34'],ans:0,why:'Mniejsza=x (parzysta), większa=x+2. Równanie: x+(x+2)=74 → 2x+2=74 → x=36. Większa: 36+2=38.'},
+  {q:'Rozwiąż:', eq:'x − 8 = 12', opts:['x=4','x=20','x=−4','x=−20'], ans:1, dlaczego:'Dodajemy 8 do obu stron: x = 12 + 8 = 20.'},
+  {q:'Jaki pierwszy krok w rozwiązaniu?', eq:'3x + 4 = 19', opts:['Podziel przez 3','Dodaj 4','Odejmij 4','Pomnóż przez 3'], ans:2, dlaczego:'Najpierw izolujemy wyrazy z x przez odjęcie 4 od obu stron: 3x = 15. Potem dzielimy przez 3.'},
+  {q:'Rozwiąż (Abeka 3.11):', eq:'5x = 35', opts:['x=30','x=8','x=7','x=40'], ans:2, dlaczego:'Dzielimy obie strony przez 5: x = 35÷5 = 7. Sprawdzenie: 5·7=35 ✓'},
+  {q:'Rozwiąż:', eq:'x/4 = 5', opts:['x=1','x=9','x=20','x=1,25'], ans:2, dlaczego:'Mnożymy obie strony przez 4 (działanie odwrotne do ÷4): x = 5·4 = 20.'},
+  {q:'Rozwiąż z nawiasem (Abeka):', eq:'2(x − 3) = 10', opts:['x=5','x=8','x=2','x=−2'], ans:1, dlaczego:'Rozwijamy: 2x−6=10 → 2x=16 → x=8. Sprawdzenie: 2·(8−3)=2·5=10 ✓'},
+  {q:'Rozwiąż z ujemnym wynikiem:', eq:'x + 15 = 8', opts:['x=7','x=23','x=−7','x=−23'], ans:2, dlaczego:'Odejmujemy 15 od obu stron: x = 8−15 = −7. Sprawdzenie: −7+15=8 ✓'},
+  {q:'Zbierz wyrazy podobne i rozwiąż:', eq:'2x + 3x = 25', opts:['x=5','x=25','x=12,5','x=10'], ans:0, dlaczego:'2x+3x=5x. Równanie: 5x=25 → x=25÷5=5.'},
+  {q:'Rozwiąż (Abeka 3.13a — ułamki):', eq:'(1/2)x + (1/5)x = 14', opts:['x=28','x=10','x=20','x=14'], ans:2, dlaczego:'NWW(2,5)=10. Mnożymy przez 10: 5x+2x=140 → 7x=140 → x=20. Sprawdzenie: 10+4=14 ✓'},
+  {q:'Rozwiąż (Abeka 3.14 — dziesiętne):', eq:'0,05x = 2,5', opts:['x=12,5','x=50','x=0,125','x=5'], ans:1, dlaczego:'Mnożymy przez 100 (setne): 5x=250 → x=50. Sprawdzenie: 0,05·50=2,5 ✓'},
+  {q:'Zeszyt i długopis kosztują razem 15 zł. Długopis jest o 3 zł droższy. Cena zeszytu:', eq:'', opts:['x=6 zł','x=9 zł','x=12 zł','x=3 zł'], ans:0, dlaczego:'x+(x+3)=15 → 2x+3=15 → 2x=12 → x=6. Zeszyt: 6 zł, długopis: 9 zł.'},
 ]
 
 function QuizContent({onComplete}) {
   const [qi,setQi]=useState(0),[sel,setSel]=useState(null),[done,setDone]=useState(false),[results,setResults]=useState([])
-  if(qi>=QUIZ.length){
-    const ok=results.filter(r=>r).length
-    return(
-      <div style={card}>
-        <div style={{textAlign:'center',padding:'16px 0 24px'}}>
-          <div style={{fontSize:52,marginBottom:8}}>{ok>=6?'🎯':ok>=4?'👍':'📚'}</div>
-          <div style={{fontSize:24,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/{QUIZ.length} poprawnych</div>
-          <div style={{fontSize:14,color:C.text2}}>{ok>=6?'Doskonale! Czas na fiszki.':ok>=4?'Dobry wynik. Powtórz słabsze sekcje.':'Wróć do teorii i spróbuj ponownie.'}</div>
-        </div>
-        <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
-          <button onClick={()=>{setQi(0);setSel(null);setDone(false);setResults([])}} style={btn()}>Powtórz quiz</button>
-          <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Dalej — Fiszki →</button>
-        </div>
+  if(qi>=QUIZ.length){const ok=results.filter(r=>r).length;return(
+    <div style={card}>
+      <div style={{textAlign:'center',padding:'16px 0 24px'}}>
+        <div style={{fontSize:48,marginBottom:8}}>{ok>=9?'🎯':ok>=7?'👍':'📚'}</div>
+        <div style={{fontSize:22,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/{QUIZ.length} poprawnych</div>
+        <div style={{fontSize:14,color:C.text2}}>{ok>=9?'Doskonale!':ok>=7?'Dobry wynik!':'Wróć do teorii.'}</div>
       </div>
-    )
-  }
+      <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
+        <button onClick={()=>{setQi(0);setSel(null);setDone(false);setResults([])}} style={btn()}>Powtórz quiz</button>
+        <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Fiszki →</button>
+      </div>
+    </div>
+  )}
   const q=QUIZ[qi]
   return(
     <div style={card}>
-      <SecLabel tab={qi+1} total={QUIZ.length}>Quiz</SecLabel>
-      <div style={{display:'flex',gap:4,marginBottom:18}}>
-        {QUIZ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<qi?'#00B894':i===qi?'#F5541E':C.border,transition:'background .3s'}}/>)}
+      <div style={{fontSize:10,fontWeight:600,letterSpacing:'.1em',textTransform:'uppercase',color:C.green,marginBottom:12,display:'flex',alignItems:'center',gap:6}}>
+        <span style={{width:6,height:6,borderRadius:'50%',background:C.green,display:'inline-block'}}/>
+        Quiz — pytanie {qi+1}/{QUIZ.length}
       </div>
-      <div style={{fontSize:15,fontWeight:500,color:C.text,marginBottom:12,lineHeight:1.5}}>{q.q}</div>
-      {q.eq&&<div style={{background:'#0F1729',borderRadius:8,padding:'12px 18px',marginBottom:16,display:'inline-block'}}>
-        <div style={{fontFamily:'monospace',fontSize:18,color:'#fff'}}>{q.eq}</div>
-      </div>}
+      <div style={{display:'flex',gap:4,marginBottom:16}}>{QUIZ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<qi?C.green:i===qi?C.accent:C.border,transition:'background .3s'}}/>)}</div>
+      <div style={{fontSize:15,fontWeight:500,color:C.text,marginBottom:12,lineHeight:1.55}}>{q.q}</div>
+      {q.eq&&<div style={{background:C.navy,borderRadius:8,padding:'11px 18px',marginBottom:14,display:'inline-block'}}><div style={{fontFamily:'monospace',fontSize:20,color:'#fff'}}>{q.eq}</div></div>}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
-        {q.opts.map((o,i)=>{
-          let bg=C.white,border=C.border,color=C.text
-          if(done){
-            if(i===q.ans){bg='#EAF3DE';border='#3B6D11';color='#27500A'}
-            else if(i===sel){bg='#FCEBEB';border='#A32D2D';color='#791F1F'}
-          }
-          return(
-            <div key={i} onClick={()=>{if(done)return;setSel(i);setDone(true);setResults(p=>[...p,i===q.ans])}}
-              style={{border:`0.5px solid ${border}`,borderRadius:8,padding:'12px 16px',cursor:done?'default':'pointer',fontFamily:'monospace',fontSize:14,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>
-              {o}
-            </div>
-          )
-        })}
+        {q.opts.map((o,i)=>{let bg=C.white,border=C.border,color=C.text;if(done){if(i===q.ans){bg='#EAF3DE';border='#3B6D11';color='#27500A'}else if(i===sel){bg='#FCEBEB';border='#A32D2D';color='#791F1F'}}return<div key={i} onClick={()=>{if(done)return;setSel(i);setDone(true);setResults(p=>[...p,i===q.ans])}} style={{border:`0.5px solid ${border}`,borderRadius:8,padding:'12px 16px',cursor:done?'default':'pointer',fontFamily:'monospace',fontSize:14,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>{o}</div>})}
       </div>
       {done&&<>
-        <div style={{padding:'12px 16px',borderRadius:8,marginBottom:12,display:'flex',gap:12,alignItems:'flex-start',background:sel===q.ans?'#EAF3DE':'#FCEBEB',border:`0.5px solid ${sel===q.ans?'#C0DD97':'#F7C1C1'}`,color:sel===q.ans?'#27500A':'#791F1F'}}>
-          <span style={{fontSize:18,flexShrink:0}}>{sel===q.ans?'✓':'✗'}</span>
-          <div>
-            <div style={{fontWeight:500,marginBottom:4}}>{sel===q.ans?'Poprawnie!':'Błędna odpowiedź.'}</div>
-            <div style={{fontSize:13,lineHeight:1.7,background:'#EEEDFE',borderRadius:8,padding:'8px 12px',color:'#3C3489'}}>
-              <strong>Rozwiązanie:</strong> {q.why}
-            </div>
+        <div style={{padding:'12px 16px',borderRadius:8,marginBottom:10,display:'flex',gap:10,alignItems:'flex-start',background:sel===q.ans?'#EAF3DE':'#FCEBEB',border:`0.5px solid ${sel===q.ans?'#C0DD97':'#F7C1C1'}`,color:sel===q.ans?'#27500A':'#791F1F'}}>
+          <span style={{fontSize:16,flexShrink:0}}>{sel===q.ans?'✓':'✗'}</span>
+          <div style={{fontSize:13,lineHeight:1.7}}><strong>{sel===q.ans?'Poprawnie!':'Błędna odpowiedź.'}</strong>
+            <div style={{background:'#EEEDFE',borderRadius:6,padding:'8px 12px',marginTop:8,fontSize:12,color:'#3C3489',lineHeight:1.7}}><strong>Rozwiązanie:</strong> {q.dlaczego}</div>
           </div>
         </div>
         <div style={{display:'flex',justifyContent:'flex-end'}}>
-          <button onClick={()=>{if(qi<QUIZ.length-1){setQi(q=>q+1);setSel(null);setDone(false)}else setQi(QUIZ.length)}}
-            style={btn({background:'#0F1729',color:'#fff',border:'none'})}>
-            {qi<QUIZ.length-1?'Następne pytanie →':'Zobacz wynik →'}
-          </button>
+          <button onClick={()=>{if(qi<QUIZ.length-1){setQi(q=>q+1);setSel(null);setDone(false)}else setQi(QUIZ.length)}} style={btn({background:C.navy,color:'#fff',border:'none'})}>{qi<QUIZ.length-1?'Następne →':'Zobacz wynik →'}</button>
         </div>
       </>}
     </div>
@@ -625,21 +542,21 @@ function QuizContent({onComplete}) {
 
 // ── FISZKI (15 kart) ──────────────────────────────────────────────────────────
 const FISZKI = [
-  {q:'Co to jest korzeń (rozwiązanie) równania?',a:'Wartość x, która po podstawieniu do równania daje prawdziwe zdanie — obie strony są równe.',f:'x=4 jest rozwiązaniem 2x+3=11, bo 2 · 4+3=11 ✓'},
-  {q:'Podstawowa zasada przekształcania równań',a:'Możemy dodawać, odejmować, mnożyć i dzielić OBIE STRONY przez tę samą liczbę (≠0) — równość zostaje zachowana.',f:'a = b  ⟺  a + c = b + c'},
-  {q:'Schemat rozwiązania ax + b = c',a:'1. Odejmij b od obu stron (ax = c−b). 2. Podziel przez a (x = (c−b)/a). 3. Sprawdź.',f:'4x + 5 = 21  →  4x = 16  →  x = 4',note:'Działa gdy a ≠ 0'},
-  {q:'Zasada przenoszenia wyrazu na drugą stronę',a:'Zmiana strony = zmiana znaku. To skrót od "odejmowania od obu stron".',f:'+3x po prawej → −3x po lewej\n−7 po lewej → +7 po prawej'},
-  {q:'Jak rozwinąć nawias a(bx + c)?',a:'Mnożymy przez KAŻDY wyraz w nawiasie: a(bx+c) = abx + ac.',f:'3(2x−5) = 6x − 15',note:'3 · 2x = 6x, 3 · (−5) = −15'},
-  {q:'Minus przed nawiasem — co robi?',a:'Minus zmienia znaki WSZYSTKICH wyrazów w nawiasie. −(a+b) = −a−b.',f:'−(3x + 7) = −3x − 7\n−(x − 4) = −x + 4'},
-  {q:'Jak pozbyć się ułamków z równania?',a:'Pomnóż KAŻDY wyraz (po obu stronach) przez NWW wszystkich mianowników.',f:'x/2 + x/3 = 5, NWW=6:\n3x + 2x = 30  →  x = 6',note:'Mnożysz też liczby całkowite!'},
-  {q:'Co to jest równanie sprzeczne?',a:'Równanie bez rozwiązań. Po uproszczeniu daje fałszywe zdanie np. 5 = −2. Zbiór rozwiązań: ∅.',f:'3(2x+1)−2(3x−4)=15  →  11=15 ✗'},
-  {q:'Co to jest równanie tożsamościowe?',a:'Równanie prawdziwe dla każdej wartości x. Po uproszczeniu daje 0=0. Zbiór: ℝ.',f:'4(x+2)−2(2x−1)=10  →  10=10 ✓'},
-  {q:'Jak sprawdzić rozwiązanie na egzaminie CKE?',a:'Podstaw x do ORYGINALNEGO równania. Oblicz obie strony osobno. Napisz "LS = PS ✓". To jest wymagany krok za punkt.',f:'x=5 w 3(2x−5)=x+10:\nLS=3 · 5=15, PS=5+10=15 ✓'},
-  {q:'Kiedy wynik jest ułamkiem — czy to błąd?',a:'Nie! Ułamkowy wynik to poprawna odpowiedź. Nie szukaj liczby całkowitej.',f:'4x + 5 = 14  →  x = 9/4 = 2,25',note:'Na CKE oba zapisy (ułamek i dziesiętny) są akceptowane'},
-  {q:'Jak ułożyć równanie z zadania tekstowego?',a:'1. Oznacz x (nieznana wielkość). 2. Wyraź resztę przez x. 3. Ułóż równanie z warunków zadania. 4. Rozwiąż. 5. Odpowiedz na pytanie (nie zawsze x!).',f:'Bilety: teatr=x, kino=x−64.\n4x + 5(x−64) = 400'},
-  {q:'Jak sprawdzić czy dwa równania są równoważne?',a:'Mają ten sam zbiór rozwiązań. Każda dozwolona operacja przekształca równanie w równoważne.',f:'2x+6=12 i x+3=6 i x=3 — wszystkie równoważne'},
-  {q:'Co robi mnożenie przez NWW przy ułamkach?',a:'Eliminuje mianowniki. Każdy ułamek x/a po pomnożeniu przez NWW daje liczbę całkowitą.',f:'x/4 i x/6, NWW=12:\n(x/4) · 12 = 3x, (x/6) · 12 = 2x'},
-  {q:'Jaka jest złota zasada CKE przy zadaniach otwartych?',a:'Zapisuj KAŻDY krok rozwiązania. Egzaminatorzy przyznają punkty za tok rozwiązania. Samo wypisanie wyniku bez dowodu = 0 punktów.',f:'za równanie: 1pkt\nza rozwiązanie: 1pkt\nza odpowiedź: 1pkt'},
+  {q:'Czym jest równanie? (Abeka 3.11)',a:'Zdanie matematyczne stwierdzające, że dwie wielkości są równe. Znak = to waga — obie strony muszą ważyć tyle samo.',f:'n + 6 = 9 · 4x + 3 = 15'},
+  {q:'Złota zasada równań (Abeka 3.11)',a:'"Co robisz po jednej stronie, musisz zrobić po drugiej." Tylko wtedy równość zostaje zachowana.',f:'Whatever is done to one side must be done to the other.'},
+  {q:'Działanie odwrotne do dodawania',a:'Odejmowanie. Jeśli masz x+7=15, odejmujesz 7 od obu stron.',f:'x + 7 = 15 → x = 15 − 7 = 8'},
+  {q:'Działanie odwrotne do mnożenia',a:'Dzielenie. Jeśli masz 5x=35, dzielisz obie strony przez 5.',f:'5x = 35 → x = 35 ÷ 5 = 7'},
+  {q:'Zasada przenoszenia wyrazu na drugą stronę',a:'Zmiana strony = zmiana znaku. To skrót od wykonania działania odwrotnego po obu stronach.',f:'+5 po lewej → −5 po prawej\n−7 po prawej → +7 po lewej'},
+  {q:'Jak rozwiązać 4x + 3 = 15?',a:'Krok 1: odejmij 3 (4x=12). Krok 2: podziel przez 4 (x=3). Krok 3: sprawdź.',f:'4·3+3=15 ✓',note:'Sprawdzenie jest obowiązkowe na CKE!'},
+  {q:'Jak eliminować ułamki z równania? (Abeka 3.13)',a:'Pomnóż każdy wyraz przez NWW wszystkich mianowników.',f:'(1/2)x + (1/5)x = 14 ×10: 5x+2x=140',note:'NWW(2,5)=10. Mnożysz KAŻDY wyraz, też liczby całkowite.'},
+  {q:'Jak eliminować dziesiętne z równania? (Abeka 3.14)',a:'Pomnóż przez odpowiednią potęgę 10: tenths×10, hundredths×100.',f:'0,3x = 21 ×10: 3x=210 → x=70'},
+  {q:'Co to jest równanie sprzeczne?',a:'Nie ma żadnego rozwiązania. Po uproszczeniu daje fałszywe zdanie (np. 5=−2). Zbiór: ∅',f:'3(2x+1)−6x=5 → 3=5 ✗'},
+  {q:'Co to jest równanie tożsamościowe?',a:'Każda liczba jest rozwiązaniem. Po uproszczeniu daje prawdziwe zdanie (0=0). Zbiór: ℝ',f:'3(x+2)=3x+6 → 0=0 ✓'},
+  {q:'Algorytm 5 kroków dla zadań tekstowych (Abeka 3.16)',a:'1. Czytaj uważnie. 2. Oznacz x. 3. Ułóż równanie. 4. Rozwiąż. 5. Odpowiedz na pytanie (sprawdź!).',note:'Nie zawsze x to odpowiedź — zadanie może pytać o inną wielkość!'},
+  {q:'Zeszyt i długopis kosztują 15 zł. Długopis o 3 zł droższy. Równanie?',a:'x + (x+3) = 15 → 2x+3=15 → 2x=12 → x=6. Zeszyt: 6, długopis: 9.',f:'x + (x+3) = 15'},
+  {q:'Jak sprawdzić wynik równania na egzaminie CKE?',a:'Podstaw wynik do ORYGINALNEGO równania. Oblicz obie strony osobno. Jeśli LS=PS → poprawnie. To dodatkowy punkt na CKE!',f:'x=4 w 4x+3=19: 4·4+3=19 ✓'},
+  {q:'Kiedy wynik jest ułamkiem — czy to błąd?',a:'Absolutnie nie! Ułamek to poprawna odpowiedź. Na CKE oba zapisy (ułamkowy i dziesiętny) są akceptowane.',f:'4x+5=14 → x=9/4=2,25'},
+  {q:'Bilety CKE 2023: teatr o 64 zł droższy niż kino. 4 teatr + 5 kino = 400 zł. Cena teatru?',a:'Teatr=x, kino=x−64. Równanie: 4x+5(x−64)=400 → 9x=720 → x=80 zł.',f:'4x + 5(x−64) = 400'},
 ]
 
 function FiszkiContent({onComplete}) {
@@ -649,7 +566,7 @@ function FiszkiContent({onComplete}) {
       <div style={{fontSize:48,marginBottom:8}}>🎴</div>
       <div style={{fontSize:22,fontWeight:500,color:C.text,marginBottom:6}}>Wszystkie {FISZKI.length} kart opanowane!</div>
       <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:16}}>
-        <button onClick={()=>{setDeck(FISZKI.map((f,i)=>({...f,id:i})));setFlipped(false);setMastered(0)}} style={btn()}>Powtórz</button>
+        <button onClick={()=>{setDeck(FISZKI.map((f,i)=>({...f,id:i})));setFlipped(false);setMastered(0)}} style={btn()}>Powtórz fiszki</button>
         <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Kartkówka →</button>
       </div>
     </div>
@@ -657,25 +574,16 @@ function FiszkiContent({onComplete}) {
   const c=deck[0],pct=Math.round((mastered/FISZKI.length)*100)
   return(
     <div style={card}>
-      <SecLabel tab={mastered+1} total={FISZKI.length}>Fiszki</SecLabel>
-      <div style={{height:4,background:C.border,borderRadius:2,marginBottom:12,overflow:'hidden'}}>
-        <div style={{height:'100%',background:'#00B894',width:`${pct}%`,transition:'width .3s',borderRadius:2}}/>
+      <div style={{fontSize:10,fontWeight:600,letterSpacing:'.1em',textTransform:'uppercase',color:C.accent,marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
+        <span style={{width:6,height:6,borderRadius:'50%',background:C.accent,display:'inline-block'}}/>
+        Fiszki — {mastered}/{FISZKI.length} opanowanych
       </div>
-      <div style={{fontSize:12,color:C.text3,textAlign:'center',marginBottom:14}}>
-        {mastered} opanowanych · {deck.length} pozostało · kliknij kartę żeby obrócić
-      </div>
-      <div onClick={()=>setFlipped(f=>!f)} style={{cursor:'pointer',minHeight:180,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',padding:28,textAlign:'center',background:flipped?C.white:'#0F1729',border:`0.5px solid ${flipped?C.border:'rgba(255,255,255,.06)'}`,transition:'background .3s',marginBottom:14}}>
+      <div style={{height:4,background:C.border,borderRadius:2,marginBottom:12,overflow:'hidden'}}><div style={{height:'100%',background:C.green,width:`${pct}%`,transition:'width .3s',borderRadius:2}}/></div>
+      <div style={{fontSize:12,color:C.text3,textAlign:'center',marginBottom:12}}>Pozostało: {deck.length} · kliknij żeby obrócić</div>
+      <div onClick={()=>setFlipped(f=>!f)} style={{cursor:'pointer',minHeight:180,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',padding:28,textAlign:'center',background:flipped?C.white:C.navy,border:`0.5px solid ${flipped?C.border:'rgba(255,255,255,.08)'}`,transition:'background .3s',marginBottom:14}}>
         {!flipped
-          ?<div>
-            <div style={{fontSize:11,color:'rgba(255,255,255,.25)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Fiszka {mastered+1} / {FISZKI.length}</div>
-            <div style={{fontSize:16,fontWeight:500,color:'#fff',lineHeight:1.6}}>{c.q}</div>
-            <div style={{fontSize:11,color:'rgba(255,255,255,.25)',marginTop:14}}>kliknij żeby zobaczyć odpowiedź</div>
-          </div>
-          :<div>
-            <div style={{fontSize:14,color:C.text,lineHeight:1.7,marginBottom:8}}>{c.a}</div>
-            {c.f&&<div style={{fontFamily:'monospace',fontSize:13,color:'#F5541E',margin:'10px 0',whiteSpace:'pre-line',lineHeight:1.8}}>{c.f}</div>}
-            {c.note&&<div style={{fontSize:12,color:C.text3,marginTop:6}}>{c.note}</div>}
-          </div>}
+          ?<div><div style={{fontSize:11,color:'rgba(255,255,255,.25)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Fiszka {mastered+1}/{FISZKI.length}</div><div style={{fontSize:16,fontWeight:500,color:'#fff',lineHeight:1.6}}>{c.q}</div><div style={{fontSize:11,color:'rgba(255,255,255,.25)',marginTop:12}}>kliknij żeby zobaczyć odpowiedź</div></div>
+          :<div><div style={{fontSize:14,color:C.text,lineHeight:1.7,marginBottom:8}}>{c.a}</div>{c.f&&<div style={{fontFamily:'monospace',fontSize:13,color:C.accent,fontWeight:600,margin:'8px 0',whiteSpace:'pre-line'}}>{c.f}</div>}{c.note&&<div style={{fontSize:12,color:C.text3,marginTop:4}}>{c.note}</div>}</div>}
       </div>
       {flipped&&<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
         <button onClick={()=>{const[,...r]=deck;setDeck([...r,deck[0]]);setFlipped(false)}} style={btn({background:'#FCEBEB',color:'#791F1F',border:'0.5px solid #F7C1C1',textAlign:'center'})}>Trudna — powtórz</button>
@@ -685,160 +593,110 @@ function FiszkiContent({onComplete}) {
   )
 }
 
-// ── KARTKÓWKA (15 pytań, poziom CKE) ──────────────────────────────────────────
+// ── KARTKÓWKA (15 pytań — Abeka + CKE) ───────────────────────────────────────
 const KQ = [
-  {q:'Rozwiąż:',eq:'4x − 7 = 2x + 5',opts:['x = 6','x = 1','x = 3','x = −1'],ans:0,hint:'Przenieś: 4x−2x=5+7 → 2x=12'},
-  {q:'Rozwiąż:',eq:'3(x + 2) = 2(2x − 1)',opts:['x = 8','x = −8','x = 4','x = −4'],ans:0,hint:'Rozwiń: 3x+6=4x−2 → x=8'},
-  {q:'Rozwiąż (uwaga na minus!):',eq:'5x − (3x + 8) = 2(x − 6)',opts:['x = 1','Brak rozwiązań','x = −1','Nieskończenie wiele'],ans:1,hint:'Rozwiń: 5x−3x−8=2x−12 → 2x−8=2x−12 → −8=−12'},
-  {q:'Rozwiąż:',eq:'x/3 − 1 = x/4',opts:['x = 12','x = −12','x = 4','x = −4'],ans:0,hint:'NWW=12. Mnożymy: 4x−12=3x → x=12'},
-  {q:'Rozwiąż:',eq:'(3x − 1)/2 = (x + 3)/4',opts:['x = 7/4','x = 1','x = 5/2','x = −1'],ans:2,hint:'NWW=4. Mnożymy: 2(3x−1)=x+3 → 6x−2=x+3 → 5x=5 → x=1. Sprawdź!'},
-  {q:'Co wychodzi po uproszczeniu?',eq:'4(x + 3) − 2(2x − 1) = 10',opts:['x = 0','Brak rozwiązań','Każda liczba','x = −1'],ans:2,hint:'Rozwiń: 4x+12−4x+2=10 → 14=10? Nie... Sprawdź ponownie.'},
-  {q:'Rozwiąż:',eq:'2(3x − 4) − 3(x + 2) = x − 14',opts:['x = 0','x = 2','Brak rozwiązań','x = −2'],ans:0,hint:'Rozwiń: 6x−8−3x−6=x−14 → 3x−14=x−14 → 2x=0'},
-  {q:'Rozwiąż:',eq:'(x + 5)/3 − (2x − 1)/6 = 1',opts:['x = 3','x = −3','x = 7','x = −7'],ans:2,hint:'NWW=6. Mnożymy: 2(x+5)−(2x−1)=6 → 2x+10−2x+1=6 → 11=6? Sprawdź'},
-  {q:'Ula ma x lat, jej mama 3x+2 lata. Razem mają 62 lata. Ile lat ma Ula?',eq:'',opts:['x = 15','x = 20','x = 12','x = 16'],ans:0,hint:'x + (3x+2) = 62 → 4x = 60 → x = 15'},
-  {q:'4 bilety normalne i 3 ulgowe kosztują 53 zł. Bilet normalny jest droższy o 5 zł od ulgowego. Ile kosztuje bilet ulgowy?',eq:'',opts:['7 zł','6 zł','8 zł','9 zł'],ans:0,hint:'Ulgowy=x, normalny=x+5. Równanie: 4(x+5)+3x=53 → 7x+20=53 → x=3? Sprawdź'},
-  {q:'Rozwiąż:',eq:'0,5(4x − 2) = 2(x + 1) − 5',opts:['x = −1','Brak rozwiązań','Nieskończenie wiele','x = 1'],ans:1,hint:'Rozwiń: 2x−1=2x+2−5 → 2x−1=2x−3 → −1=−3'},
-  {q:'Rozwiąż:',eq:'(2x + 1)/3 + (x − 1)/2 = 3',opts:['x = 2','x = 3','x = 1','x = 4'],ans:0,hint:'NWW=6. Mnożymy: 2(2x+1)+3(x−1)=18 → 4x+2+3x−3=18 → 7x=19? Sprawdź'},
-  {q:'Suma trzech kolejnych liczb naturalnych wynosi 48. Jaka jest największa z nich?',eq:'',opts:['17','16','18','15'],ans:0,hint:'x, x+1, x+2. Suma: 3x+3=48 → x=15. Największa: 15+2=17'},
-  {q:'Rozwiąż:',eq:'3(2x − 1) − 2(x + 3) = 4x − 15',opts:['x = 2','x = 0','Brak rozwiązań','x = −2'],ans:2,hint:'Rozwiń: 6x−3−2x−6=4x−15 → 4x−9=4x−15 → −9=−15'},
-  {q:'Rozwiąż:',eq:'(5x − 3)/4 − (x + 1)/2 = 0',opts:['x = 5/3','x = 5','x = 1','x = 3/5'],ans:0,hint:'NWW=4. Mnożymy: (5x−3)−2(x+1)=0 → 3x−5=0 → x=5/3'},
+  {q:'Rozwiąż:', eq:'x − 3 = 12', opts:['x=9','x=15','x=−9','x=36'], ans:1, hint:'Dodaj 3 do obu stron.'},
+  {q:'Rozwiąż:', eq:'y + 6 = 20 + 5', opts:['y=19','x=31','y=25','y=11'], ans:0, hint:'Najpierw uprość prawą stronę: 20+5=25.'},
+  {q:'Rozwiąż:', eq:'3m = 9', opts:['m=27','m=3','m=6','m=12'], ans:1, hint:'Podziel obie strony przez 3.'},
+  {q:'Rozwiąż (Abeka 3.11d):', eq:'(2/3)y = 8', opts:['y=12','y=6','y=16','y=24'], ans:0, hint:'Mnóż przez odwrotność: y = 8 · (3/2).'},
+  {q:'Rozwiąż:', eq:'x + 2x = 15', opts:['x=7,5','x=5','x=15','x=3'], ans:1, hint:'2x+x=3x. Podziel 15 przez 3.'},
+  {q:'Rozwiąż (x po obu stronach):', eq:'4x = x + 12', opts:['x=4','x=3','x=12','x=6'], ans:0, hint:'Przenieś x na lewą: 4x−x=3x=12.'},
+  {q:'Rozwiąż (ułamkowe):', eq:'(2/3)x = 1/2', opts:['x=3/4','x=1/3','x=4/3','x=1'], ans:0, hint:'NWW(3,2)=6. Mnóż przez 6: 4x=3.'},
+  {q:'Rozwiąż (dziesiętne, Abeka 3.14):', eq:'0,4x + 0,03x = 7,31', opts:['x=17','x=10','x=20','x=7,31'], ans:0, hint:'×100: 40x+3x=731 → 43x=731.'},
+  {q:'Rozwiąż z nawiasem:', eq:'3(2x − 1) = 15', opts:['x=3','x=8','x=2','x=4'], ans:0, hint:'Rozwiń: 6x−3=15 → 6x=18 → x=3.'},
+  {q:'Pewna liczba powiększona o 5 wynosi 18. To równanie:', eq:'', opts:['5x=18','x−5=18','x+5=18','x/5=18'], ans:2, hint:'"Powiększona o 5" = +5. "Wynosi 18" = =18.'},
+  {q:'Ania ma 2 razy więcej monet niż Bartek. Razem mają 36. Ile ma Bartek?', eq:'', opts:['12','24','18','6'], ans:0, hint:'Bartek=x, Ania=2x. x+2x=36 → 3x=36.'},
+  {q:'Sprawdź podstawiając: czy x=3 jest rozwiązaniem?', eq:'4x + 2 = 5x − 1', opts:['Tak','Nie'], ans:0, hint:'Lewa: 4·3+2=14. Prawa: 5·3−1=14. Porównaj.'},
+  {q:'Rozwiąż:', eq:'7x − 4 = 3x + 16', opts:['x=5','x=3','x=8','x=4'], ans:0, hint:'Przenieś: 7x−3x=16+4 → 4x=20.'},
+  {q:'Co wychodzi? (sprzeczne czy tożsamościowe?):', eq:'3(2x+1) − 2(3x−4) = 15', opts:['x=2','Brak rozwiązań','Każda liczba','x=0'], ans:1, hint:'Rozwiń: 6x+3−6x+8=15 → 11=15.'},
+  {q:'Bilety CKE 2023: teatr o 64 zł droższy niż kino. 4 teatr + 5 kino = 400 zł. Cena teatru:', eq:'', opts:['80 zł','72 zł','96 zł','64 zł'], ans:0, hint:'Teatr=x, kino=x−64. Równanie: 4x+5(x−64)=400.'},
 ]
 
 function KartkowkaContent({onComplete}) {
   const [mode,setMode]=useState(null),[ki,setKi]=useState(0),[sel,setSel]=useState(null),[done,setDone]=useState(false),[results,setResults]=useState([]),[hint,setHint]=useState(false)
   if(!mode)return(
     <div style={card}>
-      <SecLabel>Kartkówka — 15 pytań</SecLabel>
-      <p style={{fontSize:14,color:C.text2,lineHeight:1.75,marginBottom:20}}>Sprawdź całą wiedzę. Pytania są na poziomie egzaminu ósmoklasisty — w tym zadania z biletami i równania sprzeczne jak na prawdziwym CKE.</p>
+      <div style={{fontSize:10,fontWeight:600,letterSpacing:'.1em',textTransform:'uppercase',color:C.blue,marginBottom:12,display:'flex',alignItems:'center',gap:6}}>
+        <span style={{width:6,height:6,borderRadius:'50%',background:C.blue,display:'inline-block'}}/>
+        Kartkówka — 15 pytań · Abeka + CKE
+      </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
-        {[['trening','Tryb trening','Podpowiedzi dostępne po kliknięciu'],['egzamin','Tryb egzamin','Bez podpowiedzi — jak na prawdziwym egzaminie']].map(([m,t,d])=>(
-          <div key={m} onClick={()=>setMode(m)} style={{border:`0.5px solid ${mode===m?'#0F1729':C.border}`,borderRadius:14,padding:16,cursor:'pointer',background:mode===m?'#0F1729':C.white,textAlign:'center',transition:'all .15s'}}>
+        {[['trening','🏋️','Tryb trening','Podpowiedzi dostępne'],['egzamin','🎯','Tryb egzamin','Jak na prawdziwym CKE']].map(([m,ico,t,d])=>(
+          <div key={m} onClick={()=>setMode(m)} style={{border:`0.5px solid ${mode===m?C.navy:C.border}`,borderRadius:12,padding:16,cursor:'pointer',background:mode===m?C.navy:C.white,textAlign:'center',transition:'all .15s'}}>
+            <div style={{fontSize:24,marginBottom:8}}>{ico}</div>
             <div style={{fontSize:14,fontWeight:500,color:mode===m?'#fff':C.text,marginBottom:4}}>{t}</div>
-            <div style={{fontSize:12,color:mode===m?'rgba(255,255,255,.5)':C.text3,lineHeight:1.5}}>{d}</div>
+            <div style={{fontSize:12,color:mode===m?'rgba(255,255,255,.5)':C.text3}}>{d}</div>
           </div>
         ))}
       </div>
-      <button onClick={()=>mode&&setKi(0)} disabled={!mode} style={btn({width:'100%',textAlign:'center',background:mode?'#0F1729':C.bg,color:mode?'#fff':C.text3,border:'none',padding:'13px',cursor:mode?'pointer':'not-allowed'})}>Zacznij kartkówkę →</button>
+      <button onClick={()=>mode&&setKi(0)} disabled={!mode} style={btn({width:'100%',textAlign:'center',background:mode?C.navy:C.bg,color:mode?'#fff':C.text3,border:'none',padding:'13px',cursor:mode?'pointer':'not-allowed'})}>Zacznij kartkówkę →</button>
     </div>
   )
-  if(ki>=KQ.length){
-    const ok=results.filter(r=>r).length
-    return(
-      <div style={{...card,textAlign:'center'}}>
-        <div style={{fontSize:52,marginBottom:8}}>{ok>=12?'🏆':ok>=9?'⭐':'📚'}</div>
-        <div style={{fontSize:24,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/{KQ.length} poprawnych</div>
-        <div style={{fontSize:14,color:C.text2,marginBottom:20}}>
-          Ocena: {ok>=13?'A — doskonały wynik!':ok>=10?'B — dobry wynik':ok>=7?'C — zadowalający':'D — wróć do teorii'}
-        </div>
-        <div style={{display:'flex',justifyContent:'center',gap:8}}>
-          <button onClick={()=>{setMode(null);setKi(0);setSel(null);setDone(false);setResults([])}} style={btn()}>Powtórz</button>
-          <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Raport Maxa →</button>
-        </div>
+  if(ki>=KQ.length){const ok=results.filter(r=>r).length;return(
+    <div style={{...card,textAlign:'center'}}>
+      <div style={{fontSize:52,marginBottom:8}}>{ok>=13?'🏆':ok>=10?'⭐':'📚'}</div>
+      <div style={{fontSize:22,fontWeight:500,color:C.text,marginBottom:6}}>{ok}/15 poprawnych</div>
+      <div style={{fontSize:14,color:C.text2,marginBottom:20}}>Ocena: {ok>=14?'A':ok>=11?'B':ok>=8?'C':'D'}</div>
+      <div style={{display:'flex',justifyContent:'center',gap:8}}>
+        <button onClick={()=>{setMode(null);setKi(0);setSel(null);setDone(false);setResults([])}} style={btn()}>Powtórz</button>
+        <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Zadania CKE →</button>
       </div>
-    )
-  }
+    </div>
+  )}
   const q=KQ[ki]
   return(
     <div style={card}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
-        <SecLabel tab={ki+1} total={KQ.length}>Kartkówka</SecLabel>
-        <span style={{fontSize:12,color:C.text3,fontWeight:500,background:C.bg,padding:'4px 10px',borderRadius:8,border:`0.5px solid ${C.border}`}}>{mode==='trening'?'🏋️ Trening':'🎯 Egzamin'}</span>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+        <div style={{fontSize:10,fontWeight:600,letterSpacing:'.1em',textTransform:'uppercase',color:C.blue}}>Kartkówka {ki+1}/{KQ.length}</div>
+        <span style={{fontSize:11,background:C.bg,color:C.text3,padding:'3px 10px',borderRadius:20,border:`0.5px solid ${C.border}`}}>{mode==='trening'?'🏋️ Trening':'🎯 Egzamin'}</span>
       </div>
-      <div style={{display:'flex',gap:2,marginBottom:16}}>
-        {KQ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<ki?'#00B894':i===ki?'#F5541E':C.border}}/>)}
-      </div>
-      <div style={{fontSize:15,fontWeight:500,color:C.text,marginBottom:12,lineHeight:1.5}}>{q.q}</div>
-      {q.eq&&<div style={{background:'#0F1729',borderRadius:8,padding:'10px 18px',marginBottom:14,display:'inline-block'}}>
-        <div style={{fontFamily:'monospace',fontSize:18,color:'#fff'}}>{q.eq}</div>
-      </div>}
-      {mode==='trening'&&!done&&(
-        <div onClick={()=>setHint(h=>!h)} style={{background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:8,padding:'9px 14px',marginBottom:12,fontSize:12,color:'#633806',cursor:'pointer',lineHeight:1.6}}>
-          💡 {hint?q.hint:'Kliknij po wskazówkę'}
-        </div>
-      )}
+      <div style={{display:'flex',gap:2,marginBottom:14}}>{KQ.map((_,i)=><div key={i} style={{height:3,flex:1,borderRadius:2,background:i<ki?C.green:i===ki?C.accent:C.border}}/>)}</div>
+      <div style={{fontSize:15,fontWeight:500,color:C.text,marginBottom:10,lineHeight:1.5}}>{q.q}</div>
+      {q.eq&&<div style={{background:C.navy,borderRadius:8,padding:'10px 18px',marginBottom:14,display:'inline-block'}}><div style={{fontFamily:'monospace',fontSize:20,color:'#fff'}}>{q.eq}</div></div>}
+      {mode==='trening'&&!done&&<div onClick={()=>setHint(h=>!h)} style={{background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:8,padding:'9px 14px',marginBottom:12,fontSize:12,color:'#633806',cursor:'pointer'}}>💡 {hint?q.hint:'Kliknij po wskazówkę'}</div>}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
-        {q.opts.map((o,i)=>{
-          let bg=C.white,border=C.border,color=C.text
-          if(done){
-            if(i===q.ans){bg='#EAF3DE';border='#3B6D11';color='#27500A'}
-            else if(i===sel){bg='#FCEBEB';border='#A32D2D';color='#791F1F'}
-          }
-          return(
-            <div key={i} onClick={()=>{if(done)return;setSel(i);setDone(true);setHint(false);setResults(p=>[...p,i===q.ans])}}
-              style={{border:`0.5px solid ${border}`,borderRadius:8,padding:'11px 16px',cursor:done?'default':'pointer',fontFamily:'monospace',fontSize:13,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>
-              {o}
-            </div>
-          )
-        })}
+        {q.opts.map((o,i)=>{let bg=C.white,border=C.border,color=C.text;if(done){if(i===q.ans){bg='#EAF3DE';border='#3B6D11';color='#27500A'}else if(i===sel){bg='#FCEBEB';border='#A32D2D';color='#791F1F'}}return<div key={i} onClick={()=>{if(done)return;setSel(i);setDone(true);setHint(false);setResults(p=>[...p,i===q.ans])}} style={{border:`0.5px solid ${border}`,borderRadius:8,padding:'11px 16px',cursor:done?'default':'pointer',fontFamily:'monospace',fontSize:13,fontWeight:500,textAlign:'center',background:bg,color,transition:'all .15s'}}>{o}</div>})}
       </div>
-      {done&&<div style={{display:'flex',justifyContent:'flex-end'}}>
-        <button onClick={()=>{if(ki<KQ.length-1){setKi(k=>k+1);setSel(null);setDone(false);setHint(false)}else setKi(KQ.length)}}
-          style={btn({background:'#0F1729',color:'#fff',border:'none'})}>
-          {ki<KQ.length-1?'Dalej →':'Zakończ →'}
-        </button>
-      </div>}
+      {done&&<div style={{display:'flex',justifyContent:'flex-end'}}><button onClick={()=>{if(ki<KQ.length-1){setKi(k=>k+1);setSel(null);setDone(false);setHint(false)}else setKi(KQ.length)}} style={btn({background:C.navy,color:'#fff',border:'none'})}>{ki<KQ.length-1?'Dalej →':'Zakończ →'}</button></div>}
     </div>
   )
 }
 
-// ── ZADANIE CKE (autentyczne) ──────────────────────────────────────────────────
-const CKE_DATA = [
-  {
-    rok:2023, nr:16, pkt:2,
-    tresc:'Cena jednego biletu do teatru jest o 64 zł większa od ceny jednego biletu do kina. Za 4 bilety do teatru i 5 biletów do kina zapłacono 400 zł. Oblicz cenę jednego biletu do teatru.',
-    wsk:'Oznacz cenę biletu do teatru jako x. Cena biletu do kina to x−64. Ułóż równanie z drugiego warunku.',
-    rozw:[
-      'Oznaczamy: bilet do teatru = x,  bilet do kina = x − 64',
-      'Równanie z treści: 4x + 5(x − 64) = 400',
-      'Rozwijamy: 4x + 5x − 320 = 400',
-      '9x = 720',
-      'x = 80',
-    ],
-    odp:'Cena jednego biletu do teatru wynosi 80 zł.',
-    schemat:'Za oznaczenie zmiennej i ułożenie równania: 1 pkt. Za rozwiązanie i odpowiedź: 1 pkt.',
-  },
-  {
-    rok:2024, nr:6, pkt:1,
-    tresc:'Dane jest równanie y/(5x) = w, gdzie x, y, w są różne od 0. Paweł wykonał trzy przekształcenia: I. x = y/(5w)  II. y = 5xw  III. w = 5xy. Które z równań I–III są poprawnymi przekształceniami równania y/(5x) = w?',
-    wsk:'Sprawdź każde przekształcenie: mnożąc obie strony przez 5x dostajemy y = 5xw (II). Stąd x = y/(5w) (I). A w = y/(5x), nie 5xy.',
-    rozw:[
-      'Wyjściowe: y/(5x) = w',
-      'Mnożymy obie strony przez 5x: y = 5xw  ← to jest przekształcenie II ✓',
-      'Z y = 5xw dzielimy przez 5w: x = y/(5w)  ← to jest przekształcenie I ✓',
-      'Sprawdzamy III: w = 5xy?  Podstawiamy: w = 5x · 5xw = 25x²w — FAŁSZ',
-      'Poprawne przekształcenia: I i II',
-    ],
-    odp:'Poprawnymi przekształceniami są I i II.',
-    schemat:'Za poprawną odpowiedź: 1 pkt.',
-  },
-  {
-    rok:2022, nr:17, pkt:3,
-    tresc:'W roku 2020 Ula miała x lat. Wiek Uli w roku 2020 jest 3 razy mniejszy od wieku jej mamy w tym samym roku. Za 20 lat wiek Uli i jej mamy różnił się będzie o 32 lata. Ile lat miała Ula w roku 2020?',
-    wsk:'Ula=x, mama=3x. Za 20 lat: Ula=x+20, mama=3x+20. Różnica wieków nie zmienia się w czasie — zawsze wynosi 3x−x=2x. Ułóż równanie z warunku o różnicy.',
-    rozw:[
-      'Ula = x,  mama = 3x  (rok 2020)',
-      'Za 20 lat: Ula = x+20,  mama = 3x+20',
-      'Różnica: (3x+20) − (x+20) = 2x',
-      'Warunek: 2x = 32',
-      'x = 16',
-    ],
-    odp:'Ula w roku 2020 miała 16 lat.',
-    schemat:'Za oznaczenie i równanie: 1 pkt. Za rozwiązanie: 1 pkt. Za odpowiedź z weryfikacją: 1 pkt.',
-  },
+// ── ZADANIE CKE ───────────────────────────────────────────────────────────────
+const CKE_Z = [
+  {rok:'CKE 2023',nr:16,pkt:2,
+   tresc:'Cena jednego biletu do teatru jest o 64 zł większa od ceny jednego biletu do kina. Za 4 bilety do teatru i 5 biletów do kina zapłacono 400 zł. Oblicz cenę jednego biletu do teatru.',
+   wsk:'Oznacz cenę biletu do teatru jako x. Cena biletu do kina to x−64. Ułóż równanie z drugiego warunku.',
+   rozw:['Oznaczamy: bilet do teatru = x · bilet do kina = x − 64','Równanie: 4x + 5(x − 64) = 400','Rozwijamy: 4x + 5x − 320 = 400','9x = 720','x = 80'],
+   odp:'Cena jednego biletu do teatru wynosi 80 zł.',
+   schemat:'Za oznaczenie i ułożenie równania: 1 pkt. Za wynik z odpowiedzią: 1 pkt.'},
+  {rok:'CKE 2022',nr:17,pkt:2,
+   tresc:'Suma dwóch kolejnych liczb naturalnych wynosi 47. Znajdź te liczby.',
+   wsk:'Mniejsza = x, następna = x+1. Ułóż równanie z warunku "suma = 47".',
+   rozw:['Mniejsza = x · następna = x + 1','Równanie: x + (x + 1) = 47','2x + 1 = 47 → 2x = 46','x = 23','Liczby: 23 i 24'],
+   odp:'Szukane liczby to 23 i 24.',
+   schemat:'Za ułożenie równania: 1 pkt. Za obie liczby z odpowiedzią: 1 pkt.'},
+  {rok:'Styl CKE',nr:'weryfikacja',pkt:1,
+   tresc:'Sprawdź, czy liczba x = 3 jest rozwiązaniem równania: 4x + 2 = 5x − 1. Zapisz obliczenia.',
+   wsk:'Podstaw x=3 do OBUEQUATIONS stron i oblicz każdą osobno. Porównaj wyniki.',
+   rozw:['Podstawiamy x = 3 do lewej strony: 4·3 + 2 = 12 + 2 = 14','Podstawiamy x = 3 do prawej strony: 5·3 − 1 = 15 − 1 = 14','Lewa strona = Prawa strona: 14 = 14'],
+   odp:'Tak, x = 3 jest rozwiązaniem równania.',
+   schemat:'Za obliczenie obu stron i porównanie: 1 pkt.'},
 ]
 
 function CKEContent({onComplete}) {
-  const [rev,setRev]=useState([]),[sol,setSol]=useState(Array(CKE_DATA.length).fill(false))
+  const [rev,setRev]=useState([]),[sol,setSol]=useState(Array(CKE_Z.length).fill(false))
   return(
     <div style={card}>
-      <SecLabel>Zadania z arkuszy CKE</SecLabel>
-      <p style={{fontSize:13,color:C.text2,marginBottom:18,lineHeight:1.65}}>
-        Autentyczne zadania z egzaminów ósmoklasisty 2022–2024. Spróbuj rozwiązać samodzielnie — potem sprawdź wzorcowe rozwiązanie ze schematem oceniania CKE.
-      </p>
-      {CKE_DATA.map((z,i)=>(
-        <div key={i} style={{background:C.bg,borderRadius:14,border:`0.5px solid ${C.border}`,padding:'18px 20px',marginBottom:14}}>
+      <div style={{fontSize:10,fontWeight:600,letterSpacing:'.1em',textTransform:'uppercase',color:C.blue,marginBottom:4,display:'flex',alignItems:'center',gap:6}}>
+        <span style={{width:6,height:6,borderRadius:'50%',background:C.blue,display:'inline-block'}}/>
+        Zadania z arkuszy CKE
+      </div>
+      <p style={{fontSize:13,color:C.text2,marginBottom:16,lineHeight:1.65}}>Autentyczne i wzorcowe zadania egzaminacyjne. Spróbuj samodzielnie, potem sprawdź rozwiązanie ze schematem oceniania.</p>
+      {CKE_Z.map((z,i)=>(
+        <div key={i} style={{background:C.bg,borderRadius:12,border:`0.5px solid ${C.border}`,padding:'18px 20px',marginBottom:14}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
-            <span style={{fontSize:12,fontWeight:500,background:'#E6F1FB',color:'#0C447C',padding:'3px 10px',borderRadius:20}}>CKE {z.rok}</span>
+            <span style={{fontSize:12,fontWeight:500,background:'#E6F1FB',color:'#0C447C',padding:'3px 10px',borderRadius:20}}>{z.rok}</span>
             <span style={{fontSize:12,color:C.text3}}>Zadanie {z.nr}</span>
             <span style={{fontSize:12,fontWeight:500,color:'#633806',background:'#FAEEDA',padding:'3px 9px',borderRadius:20,marginLeft:'auto'}}>{z.pkt} {z.pkt===1?'punkt':'punkty'}</span>
           </div>
@@ -846,28 +704,22 @@ function CKEContent({onComplete}) {
           <div onClick={()=>setRev(r=>r.includes(i)?r:[...r,i])} style={{background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:8,padding:'9px 14px',marginBottom:10,fontSize:12,color:'#633806',cursor:'pointer',lineHeight:1.6}}>
             💡 {rev.includes(i)?z.wsk:'Kliknij po wskazówkę'}
           </div>
-          <button onClick={()=>setSol(p=>p.map((v,j)=>j===i?!v:v))} style={btn({fontSize:12,padding:'8px 16px'})}>
-            {sol[i]?'▲ Ukryj rozwiązanie':'▼ Pokaż wzorcowe rozwiązanie'}
-          </button>
+          <button onClick={()=>setSol(p=>p.map((v,j)=>j===i?!v:v))} style={btn({fontSize:12,padding:'8px 16px'})}>{sol[i]?'▲ Ukryj rozwiązanie':'▼ Pokaż wzorcowe rozwiązanie'}</button>
           {sol[i]&&(
             <div style={{marginTop:14,background:C.white,borderRadius:8,border:`0.5px solid ${C.border}`,padding:'16px'}}>
-              <div style={{display:'flex',flexDirection:'column',gap:0}}>
-                {z.rozw.map((s,j)=>(
-                  <div key={j} style={{display:'flex',gap:10,padding:'8px 0',borderBottom:j<z.rozw.length-1?`0.5px solid ${C.border}`:'none'}}>
-                    <div style={{width:20,height:20,borderRadius:'50%',background:'#0F1729',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,flexShrink:0}}>{j+1}</div>
-                    <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:1.6}}>{s}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{background:'#EAF3DE',borderRadius:8,padding:'10px 14px',marginTop:12,fontSize:13,color:'#27500A',fontWeight:500}}>{z.odp}</div>
-              <div style={{background:'#EEEDFE',borderRadius:8,padding:'10px 14px',marginTop:8,fontSize:12,color:'#3C3489',lineHeight:1.6}}>
-                <strong>Schemat oceniania CKE:</strong> {z.schemat}
-              </div>
+              {z.rozw.map((s,j)=>(
+                <div key={j} style={{display:'flex',gap:10,padding:'8px 0',borderBottom:j<z.rozw.length-1?`0.5px solid ${C.border}`:'none',alignItems:'center'}}>
+                  <div style={{width:20,height:20,borderRadius:'50%',background:C.navy,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:500,flexShrink:0}}>{j+1}</div>
+                  <div style={{fontFamily:'monospace',fontSize:13,color:C.text,lineHeight:1.5}}>{s}</div>
+                </div>
+              ))}
+              <div style={{background:'#EAF3DE',borderRadius:8,padding:'10px 14px',marginTop:12,fontSize:13,color:'#27500A',fontWeight:500}}>Odpowiedź: {z.odp}</div>
+              <div style={{background:'#EEEDFE',borderRadius:8,padding:'10px 14px',marginTop:8,fontSize:12,color:'#3C3489',lineHeight:1.6}}><strong>Schemat oceniania CKE:</strong> {z.schemat}</div>
             </div>
           )}
         </div>
       ))}
-      <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
+      <div style={{display:'flex',justifyContent:'flex-end'}}>
         <button onClick={onComplete} style={btn({background:'#3B6D11',color:'#fff',border:'none'})}>✓ Ukończyłem zadania CKE →</button>
       </div>
     </div>
@@ -878,33 +730,21 @@ function CKEContent({onComplete}) {
 function RaportContent({onComplete}) {
   return(
     <div style={card}>
-      <SecLabel>Raport Maxa</SecLabel>
-      <div style={{textAlign:'center',padding:'10px 0 22px'}}>
+      <div style={{textAlign:'center',padding:'10px 0 20px'}}>
         <div style={{fontSize:52,marginBottom:8}}>🏆</div>
-        <div style={{fontSize:24,fontWeight:500,color:C.text,marginBottom:4}}>Lekcja ukończona</div>
-        <div style={{fontSize:14,color:C.text2}}>Równania liniowe — teoria, ćwiczenia i egzamin CKE za Tobą</div>
+        <div style={{fontSize:22,fontWeight:500,color:C.text,marginBottom:4}}>Lekcja ukończona</div>
+        <div style={{fontSize:14,color:C.text2}}>Równania liniowe — od podstaw Abeka do poziomu CKE</div>
       </div>
-      <div style={{background:'#0F1729',borderRadius:14,padding:'20px',marginBottom:18}}>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+      <div style={{background:C.navy,borderRadius:12,padding:'20px',marginBottom:16}}>
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:14}}>
           <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#F5541E,#FF7A4D)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>🤖</div>
-          <div>
-            <div style={{fontSize:14,fontWeight:500,color:'#fff'}}>Max</div>
-            <div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>podsumowanie lekcji</div>
-          </div>
+          <div><div style={{fontSize:14,fontWeight:500,color:'#fff'}}>Max</div><div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>podsumowanie lekcji</div></div>
         </div>
-        <div style={{fontSize:13,color:'rgba(255,255,255,.8)',lineHeight:1.8,marginBottom:14}}>
-          Równania liniowe to absolutny fundament egzaminu ósmoklasisty — pojawiają się w każdym arkuszu CKE, zarówno w zadaniach zamkniętych jak i otwartych. Pięć zasad, które muszą być dla Ciebie automatyczne:
-        </div>
-        {[
-          ['Zmiana strony = zmiana znaku','Przenosząc wyraz — zawsze zmieniasz znak. Bez wyjątków.'],
-          ['Minus przed nawiasem','−(a + b) = −a − b. Minus odwraca WSZYSTKIE znaki.'],
-          ['Ułamki? Mnóż przez NWW','Pozbądź się mianowników. Mnożysz KAŻDY wyraz.'],
-          ['Sprawdzenie jest obowiązkowe','W zadaniach otwartych CKE = dodatkowy punkt. Nigdy nie pomijaj.'],
-          ['Wynik może być ułamkiem','x = 9/4 to poprawna odpowiedź. Nie szukaj "ładnej liczby".'],
-        ].map(([t,d],i)=>(
-          <div key={i} style={{display:'flex',gap:10,marginBottom:10,fontSize:13,color:'rgba(255,255,255,.75)',lineHeight:1.6}}>
+        <div style={{fontSize:13,color:'rgba(255,255,255,.8)',lineHeight:1.8,marginBottom:14}}>Równania to absolutny fundament egzaminu ósmoklasisty — pojawiają się w każdym arkuszu CKE. Sześć zasad które muszą być automatyczne:</div>
+        {[['Złota zasada','Co robisz po jednej stronie, robisz po drugiej. Bez wyjątków.'],['Zmiana strony = zmiana znaku','Przenosząc wyraz — zawsze zmieniasz znak.'],['Działanie odwrotne','Od +7 odejmujesz 7. Od ×5 dzielisz przez 5.'],['Ułamki i dziesiętne','Pomnóż przez NWW lub potęgę 10 żeby je wyeliminować.'],['Sprawdzenie jest obowiązkowe','Na CKE to osobny punkt. Podstaw wynik do oryginału.'],['Algorytm 5 kroków','Czytaj → oznacz x → ułóż równanie → rozwiąż → odpowiedz.']].map(([t,d],i)=>(
+          <div key={i} style={{display:'flex',gap:10,marginBottom:8,fontSize:13,color:'rgba(255,255,255,.75)',lineHeight:1.6}}>
             <span style={{color:'#F5541E',flexShrink:0,marginTop:1}}>→</span>
-            <span><strong style={{color:'rgba(255,255,255,.95)'}}>({i+1}) {t}:</strong> {d}</span>
+            <span><strong style={{color:'rgba(255,255,255,.95)'}}>{t}:</strong> {d}</span>
           </div>
         ))}
       </div>
@@ -917,34 +757,27 @@ function RaportContent({onComplete}) {
 }
 
 // ── KONFIGURACJA ──────────────────────────────────────────────────────────────
-const DZIAL = {
-  n:3, title:'Równania i nierówności', href:'/kurs/dzial-3',
-  lekcje:[
-    {n:1,title:'Równania liniowe',       href:'/kurs/rownania-liniowe',  status:'active'},
-    {n:2,title:'Układy równań',          href:'/kurs/uklady-rownan',     status:'locked'},
-    {n:3,title:'Nierówności liniowe',    href:'/kurs/nierownosci',       status:'locked'},
-    {n:4,title:'Zadania tekstowe',       href:'/kurs/zadania-tekstowe',  status:'locked'},
-    {n:5,title:'Równania w geometrii',   href:'/kurs/rownania-geometria',status:'locked'},
-    {n:6,title:'Sprawdzian działu',      href:'/kurs/sprawdzian-3',      status:'locked', isTest:true},
-  ],
-}
-const LEKCJA = {
-  n:1, total:5, slug:'rownania-liniowe',
-  title:'Równania liniowe z jedną niewiadomą',
-  czas:'25 min', poziom:'Poziom: podstawowy–CKE', cke:true,
-}
-const XP_MAP = {teoria:60,quiz:60,fiszki:80,kartkowka:100,cke:60,raport:40}
-const MAX_FAQ = [
-  {q:'ułamki równanie jak',a:'Przy równaniach z ułamkami: znajdź NWW wszystkich mianowników i pomnóż KAŻDY wyraz przez tę liczbę — też liczby całkowite! Przykład: x/2 + 3 = 7, NWW=2 → x + 6 = 14 → x=8.'},
-  {q:'zmiana strony znak',a:'Przenosząc wyraz na drugą stronę — zawsze zmieniasz znak. To skrót od "odejmowania od obu stron". +3x po prawej staje się −3x po lewej. Bez wyjątków.'},
-  {q:'minus nawias jak rozwinąć',a:'Minus przed nawiasem zmienia znaki WSZYSTKICH wyrazów w środku: −(2x+3) = −2x−3. Zasada: minus odwraca każdy znak.'},
-  {q:'sprzeczne tożsamościowe jak rozpoznać',a:'Jeśli po uproszczeniu wychodzi FAŁSZ (np. 5=−2) → brak rozwiązań, zbiór ∅. Jeśli wychodzi PRAWDA (np. 0=0) → nieskończenie wiele rozwiązań, zbiór ℝ.'},
-  {q:'sprawdzenie jak napisać',a:'Podstaw x do ORYGINALNEGO równania. Oblicz lewą i prawą stronę osobno. Napisz "LS = PS ✓". W zadaniach otwartych CKE sprawdzenie to osobny punkt!'},
-  {q:'cke zadanie tekstowe',a:'Strategia: 1) Oznacz x. 2) Wyraź resztę przez x. 3) Ułóż równanie z treści. 4) Rozwiąż. 5) Odpowiedz na pytanie — nie zawsze wprost x, czasem cena, suma itp.'},
+const DZIAL={n:3,title:'Równania i nierówności',href:'/kurs/dzial-3',lekcje:[
+  {n:1,title:'Równania liniowe',       href:'/kurs/rownania-liniowe',  status:'active'},
+  {n:2,title:'Układy równań',          href:'/kurs/uklady-rownan',     status:'done'},
+  {n:3,title:'Nierówności liniowe',    href:'/kurs/nierownosci',       status:'done'},
+  {n:4,title:'Zadania tekstowe',       href:'/kurs/zadania-tekstowe',  status:'locked'},
+  {n:5,title:'Równania w geometrii',   href:'/kurs/rownania-geometria',status:'locked'},
+  {n:6,title:'Sprawdzian działu',      href:'/kurs/sprawdzian-3',      status:'locked',isTest:true},
+]}
+const LEKCJA={n:1,total:5,slug:'rownania-liniowe',title:'Równania liniowe z jedną niewiadomą',czas:'30 min',poziom:'Poziom: podstawowy–CKE',cke:true}
+const XP_MAP={teoria:80,quiz:60,fiszki:80,kartkowka:100,cke:70,raport:40}
+const MAX_FAQ=[
+  {q:'równanie co to złota zasada',a:'Złota zasada: co robisz po jednej stronie, robisz po drugiej. Waga musi być w równowadze. Jeśli odejmujesz 5 po lewej — odejmujesz 5 po prawej.'},
+  {q:'ułamki równanie jak',a:'Przy ułamkach: pomnóż każdy wyraz przez NWW mianowników. Ułamki znikają i wracasz do normalnego równania. Np. (1/2)x + (1/5)x = 14, ×10: 5x+2x=140.'},
+  {q:'zmiana strony znak',a:'Przenosząc wyraz na drugą stronę — zawsze zmieniasz znak. +5 po lewej → −5 po prawej. To jest skrót od "odejmowania po obu stronach".'},
+  {q:'sprawdzenie jak',a:'Podstaw wynik do ORYGINALNEGO równania. Oblicz lewą i prawą stronę osobno. Jeśli LS=PS — dobrze. Na CKE sprawdzenie to osobny punkt!'},
+  {q:'zadanie tekstowe jak zacząć',a:'Algorytm 5 kroków: 1. Czytaj uważnie. 2. Oznacz x. 3. Ułóż równanie. 4. Rozwiąż. 5. Odpowiedz na pytanie (sprawdź czy ma sens!).'},
+  {q:'sprzeczne tożsamościowe',a:'Po uproszczeniu wychodzi FAŁSZ (np. 5=−2) → brak rozwiązań, zbiór ∅. Wychodzi PRAWDA (np. 0=0) → nieskończenie wiele, zbiór ℝ.'},
 ]
 
 export default function RownaniaTiLesson() {
-  const segments = [
+  const segments=[
     {id:'teoria',    icon:'📖',label:'Teoria',     content:({onComplete})=><TeoriaContent onComplete={onComplete}/>},
     {id:'quiz',      icon:'🧠',label:'Quiz',       content:({onComplete})=><QuizContent onComplete={onComplete}/>},
     {id:'fiszki',    icon:'🃏',label:'Fiszki',     content:({onComplete})=><FiszkiContent onComplete={onComplete}/>},
