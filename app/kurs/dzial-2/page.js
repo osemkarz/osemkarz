@@ -4,12 +4,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 const LEKCJE = [
-  { n:1, title:'Zmienne i wyrażenia',        desc:'Pojęcie zmiennej, wyrażenia algebraiczne, wartość wyrażenia',           czas:'20 min', xp:160, href:'/kurs/zmienne-wyrazenia' },
-  { n:2, title:'Upraszczanie wyrażeń',        desc:'Trzy prawa algebry, redukcja wyrazów podobnych, nawiasy zagnieżdżone',  czas:'25 min', xp:220, href:'/kurs/wyrazenia-algebraiczne' },
-  { n:3, title:'Wzory skróconego mnożenia',   desc:'(a±b)², (a+b)(a−b), zastosowania w zadaniach CKE',                    czas:'20 min', xp:180, href:'#' },
-  { n:4, title:'Wyłączanie przed nawias',     desc:'NWW wyrazów, faktoryzacja wyrażeń, upraszczanie ułamków algebraicznych',czas:'20 min', xp:180, href:'#' },
-  { n:5, title:'Działania na wielomianach',   desc:'Dodawanie, odejmowanie, mnożenie wielomianów',                         czas:'20 min', xp:180, href:'#' },
-  { n:6, title:'Sprawdzian działu',           desc:'25 zadań · Analiza błędów · Raport Maxa',                              czas:'35 min', xp:450, href:'#', isTest:true },
+  { n:1, title:'Zmienne i wyrażenia',         desc:'Pojęcie zmiennej, wyrażenia algebraiczne, wartość wyrażenia',           czas:'20 min', xp:160, href:'/kurs/zmienne-wyrazenia' },
+  { n:2, title:'Upraszczanie wyrażeń',         desc:'Trzy prawa algebry, redukcja wyrazów podobnych, nawiasy zagnieżdżone',  czas:'25 min', xp:220, href:'/kurs/wyrazenia-algebraiczne' },
+  { n:3, title:'Wzory skróconego mnożenia',    desc:'(a±b)², (a+b)(a−b), zastosowania, dowody, faktoryzacja',               czas:'30 min', xp:250, href:'/kurs/wzory-skroconego' },
+  { n:4, title:'Wyłączanie przed nawias',      desc:'NWC jednomianów, grupowanie, ułamki algebraiczne, równania',            czas:'30 min', xp:250, href:'/kurs/wylaczanie-przed-nawias' },
+  { n:5, title:'Działania na wielomianach',    desc:'Dodawanie, odejmowanie, mnożenie wielomianów',                          czas:'20 min', xp:180, href:'#' },
+  { n:6, title:'Sprawdzian działu',            desc:'25 zadań · Analiza błędów · Raport Maxa',                               czas:'35 min', xp:450, href:'#', isTest:true },
 ]
 
 const C = { navy:'#0F1729',accent:'#F5541E',green:'#00B894',bg:'#F7F8FC',white:'#fff',border:'#E2E8F0',text:'#0F1729',text2:'#4A5568',text3:'#8896A5' }
@@ -32,9 +32,9 @@ export default function Dzial2Page() {
           <div style={{ position:'absolute', top:-60, right:-60, width:200, height:200, background:'radial-gradient(circle,rgba(245,84,30,0.15) 0%,transparent 70%)', pointerEvents:'none' }}/>
           <div style={{ fontSize:12, color:'rgba(255,255,255,0.4)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Dział 2 z 8</div>
           <div style={{ fontFamily:'Fraunces,serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:8 }}>Wyrażenia algebraiczne</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,0.5)', marginBottom:20, lineHeight:1.6 }}>Fundamenty algebry — zmienne, upraszczanie, prawa matematyki i wzory skróconego mnożenia.</div>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,0.5)', marginBottom:20 }}>Fundamenty algebry — od zmiennych po wzory skróconego mnożenia i faktoryzację.</div>
           <div style={{ display:'flex', gap:20 }}>
-            {[['5','lekcji'],['1','sprawdzian'],['~100 min','łącznie'],['CKE','egzamin']].map(([v,l],i)=>(
+            {[['5','lekcji'],['1','sprawdzian'],['~120 min','łącznie'],['CKE','egzamin']].map(([v,l],i)=>(
               <div key={i}><div style={{ fontSize:15, fontWeight:700, color:'#fff' }}>{v}</div><div style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>{l}</div></div>
             ))}
           </div>
